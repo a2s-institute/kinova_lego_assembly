@@ -15,6 +15,7 @@ context_mod = pytest.importorskip("kinova_lego_assembly.ros.behaviours.context")
 placement = pytest.importorskip("kinova_lego_assembly.ros.placement")
 
 from geometry_msgs.msg import PoseStamped
+
 from kinova_lego_assembly.core.blueprint import ModelRecipe, ModelStep
 
 PlaceSlot = placement.PlaceSlot

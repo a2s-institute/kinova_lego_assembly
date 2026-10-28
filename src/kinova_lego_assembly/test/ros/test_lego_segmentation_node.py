@@ -24,9 +24,10 @@ rclpy = pytest.importorskip("rclpy")
 pytest.importorskip("cv_bridge")
 
 from cv_bridge import CvBridge
+from kinova_lego_assembly_interfaces.srv import SegmentImage
+
 from kinova_lego_assembly.core.segmentation import registry
 from kinova_lego_assembly.ros.nodes.lego_segmentation import LegoSegmentationNode
-from kinova_lego_assembly_interfaces.srv import SegmentImage
 
 
 def _model_available() -> bool:

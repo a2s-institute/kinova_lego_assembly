@@ -44,6 +44,7 @@ def pytest_configure(config: pytest.Config) -> None:
 
     try:
         import yaml
+
         from kinova_lego_assembly.core.segmentation import factory
     except ImportError:
         return

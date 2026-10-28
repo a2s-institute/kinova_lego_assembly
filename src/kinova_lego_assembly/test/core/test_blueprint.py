@@ -6,6 +6,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
+
 from kinova_lego_assembly.core.blueprint import BlueprintError, BlueprintUtils
 
 _VALID = textwrap.dedent(
@@ -22,11 +23,18 @@ _VALID = textwrap.dedent(
     """
 )
 
+_SHIPPED_BLUEPRINTS = Path(__file__).resolve().parents[2] / "assets" / "lego_blueprints.yaml"
+
 
 def _write(tmp_path: Path, text: str) -> Path:
     path = tmp_path / "bp.yaml"
     path.write_text(text, encoding="utf-8")
     return path
+
+
+def test_shipped_blueprints_are_valid() -> None:
+    bp = BlueprintUtils.from_file(_SHIPPED_BLUEPRINTS)
+    assert bp.blocks
 
 
 def test_synthesized_names(tmp_path: Path) -> None:

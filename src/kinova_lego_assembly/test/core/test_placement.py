@@ -7,6 +7,7 @@ from types import SimpleNamespace
 
 import pytest
 from geometry_msgs.msg import PoseStamped
+
 from kinova_lego_assembly.core.blueprint import ModelStep
 from kinova_lego_assembly.core.placement import PlacementError
 from kinova_lego_assembly.ros.placement import (

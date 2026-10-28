@@ -6,7 +6,7 @@
 #
 # Validate any edit with:
 #
-#   python3 scripts/lint_blueprints.py
+#   pytest test/core/test_blueprint.py   (from src/kinova_lego_assembly)
 
 blocks:
   - id: 1

@@ -29,13 +29,6 @@ The simulator also depends on the DFKI **`mujoco_ros2_control`** package, which 
 
 The brick / holder meshes, the MuJoCo `MjSpec` builders (`assets/mujoco/duplo_brick.py`, `assets/mujoco/lego_holder.py`), and the `lego_blueprints.yaml` catalog live in [`src/kinova_lego_assembly/assets/`](src/kinova_lego_assembly/assets). The simulator's scene generator imports the builders from there.
 
-### Repo-root tooling (not owned by a ROS package)
-
-- **`scripts/`**
-  - `lint_blueprints.py`: schema validator for `src/kinova_lego_assembly/assets/lego_blueprints.yaml`.
-  - `smoke_test_arm_controller.py`: commands the arm through a set of poses and logs the command / feedback exchange.
-- **`ruff.toml`**: lint configuration.
-
 ---
 
 ## Documentation

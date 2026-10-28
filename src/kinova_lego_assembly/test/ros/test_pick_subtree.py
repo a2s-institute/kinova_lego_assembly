@@ -20,8 +20,9 @@ tree_mod = pytest.importorskip("kinova_lego_assembly.ros.behaviours.tree")
 context_mod = pytest.importorskip("kinova_lego_assembly.ros.behaviours.context")
 
 from geometry_msgs.msg import PoseStamped
-from kinova_lego_assembly.core.blueprint import ModelStep
 from mir_interfaces.msg import Object, ObjectList
+
+from kinova_lego_assembly.core.blueprint import ModelStep
 
 
 class _Logger:

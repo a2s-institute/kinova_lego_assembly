@@ -14,6 +14,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+
 from kinova_lego_assembly.core.segmentation import (
     YOLOSegmentor,
     build_segmentor,

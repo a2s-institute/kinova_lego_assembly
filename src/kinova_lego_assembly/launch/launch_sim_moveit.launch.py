@@ -24,9 +24,6 @@ from __future__ import annotations
 from pathlib import Path
 
 from ament_index_python.packages import get_package_share_directory
-from kinova_mujoco_sim.core.scene import layout
-from kinova_mujoco_sim.ros import launch_helpers as helpers
-from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, TimerAction
 from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -35,6 +32,10 @@ from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 from moveit_configs_utils import MoveItConfigsBuilder
+
+from kinova_mujoco_sim.core.scene import layout
+from kinova_mujoco_sim.ros import launch_helpers as helpers
+from launch import LaunchDescription
 
 
 def generate_launch_description() -> LaunchDescription:

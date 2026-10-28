@@ -12,9 +12,8 @@ target-version = "py310"
 # the side-by-side-diff property of narrower limits.
 line-length = 100
 
-# Source code lives under `scripts/`. `manifests/` is local-only architect
-# tooling and is excluded from the remote anyway.
-src = ["scripts"]
+# First-party package roots, used by isort to group imports.
+src = ["src/kinova_lego_assembly", "src/kinova_mujoco_sim"]
 
 [lint]
 # Selected groups:

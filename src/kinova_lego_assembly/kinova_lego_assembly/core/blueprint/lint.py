@@ -7,9 +7,8 @@ scripts/lint_blueprints.py" subsection). This module is the executable
 form of that spec; if the two disagree, the ADR is canonical and the
 module is the bug.
 
-This is pure business logic with no ROS dependency. The command-line
-entry point lives in ``scripts/lint_blueprints.py``, which imports these
-functions.
+This is pure business logic with no ROS dependency. The shipped catalog is
+checked by ``test/core/test_blueprint.py``.
 """
 
 from __future__ import annotations

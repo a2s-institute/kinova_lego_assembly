@@ -5,6 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
+
 from kinova_lego_assembly.core.segmentation import registry
 
 

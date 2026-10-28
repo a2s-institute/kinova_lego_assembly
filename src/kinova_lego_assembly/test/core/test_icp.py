@@ -4,14 +4,15 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
+from scipy.spatial import cKDTree
+from transforms3d.euler import euler2mat
+
 from kinova_lego_assembly.core.icp import (
     BRICK_HALF_HEIGHT_M,
     BrickModel,
     crop_observed_brick,
     refine_brick_pose,
 )
-from scipy.spatial import cKDTree
-from transforms3d.euler import euler2mat
 
 
 def _box_surface(size_x_m: float, size_y_m: float) -> BrickModel:
