@@ -1,0 +1,13 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: kinova_mujoco_sim
+    relative_path: description/gen3_7dof_mujoco.urdf.xacro
+    xacro_args:
+      prefix:=
+      vision:=true
+  srdf:
+    relative_path: config/gen3.srdf
+  package_settings:
+    author_name: Anthony Baker
+    author_email: abake48@gmail.com
+    generated_timestamp: 1683821863

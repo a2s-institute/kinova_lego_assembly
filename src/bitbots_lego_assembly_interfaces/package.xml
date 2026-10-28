@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+
+  <name>bitbots_lego_assembly_interfaces</name>
+  <version>0.0.0</version>
+  <description>ROS 2 interface definitions (messages/services/actions) for bitbots_lego_assembly. Requires ROS 2 Humble Hawksbill.</description>
+
+  <maintainer email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</author>
+  <author email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</author>
+  <author email="jay.patil@smail.inf.h-brs.de">Jay Patil</author>
+  <author email="suhail.rafi@smail.inf.h-brs.de">Suhail Rafi</author>
+  
+  <license>TODO</license>
+  
+  <url type="repository">https://git.inf.h-brs.de/sdp-ss-2026/b-it-bots-at-work/bitbots_lego_assembly</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <build_depend>rosidl_default_generators</build_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+
+  <depend>geometry_msgs</depend>
+  <depend>sensor_msgs</depend>
+
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

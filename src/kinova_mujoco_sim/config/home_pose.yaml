@@ -1,0 +1,21 @@
+# Spawn configuration of the work arm: seeds the MJCF initial keyframe and the
+# ros2_control initial_value of every arm joint.
+/**:
+  ros__parameters:
+    home_pose:
+      joint_names:
+        - joint_1
+        - joint_2
+        - joint_3
+        - joint_4
+        - joint_5
+        - joint_6
+        - joint_7
+      positions:
+        - 0.464
+        - 0.493
+        - -2.780
+        - -1.100
+        - -0.216
+        - -1.345
+        - 2.390

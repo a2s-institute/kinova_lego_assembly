@@ -1,0 +1,46 @@
+# Ruff configuration for the bitbots_lego_assembly project.
+#
+# Ruff replaces pyflakes + pycodestyle + isort + pyupgrade + flake8-bugbear
+# in one Rust binary. The rule selection below is intentionally conservative:
+# we enable the rules that catch real bugs and style drift, and leave the
+# more opinionated ones for the team to opt into later.
+
+# Target ROS 2 Humble's Python (ships with Ubuntu 22.04).
+target-version = "py310"
+
+# 100 chars: comfortable enough for type-rich signatures without giving up
+# the side-by-side-diff property of narrower limits.
+line-length = 100
+
+# Source code lives under `scripts/`. `manifests/` is local-only architect
+# tooling and is excluded from the remote anyway.
+src = ["scripts"]
+
+[lint]
+# Selected groups:
+#   E, W : pycodestyle errors / warnings
+#   F    : pyflakes (unused imports, undefined names, ...)
+#   I    : isort (import ordering)
+#   N    : PEP 8 naming
+#   UP   : pyupgrade (modernise syntax for target-version)
+#   B    : flake8-bugbear (common bugs)
+#   SIM  : flake8-simplify
+#   D    : pydocstyle (numpy convention configured below)
+#   RUF  : ruff-specific opinions
+select = ["E", "W", "F", "I", "N", "UP", "B", "SIM", "D", "RUF"]
+
+# Allow ruff to fix issues that are unambiguously safe (imports, trivial
+# refactors). The team still has to commit the changes.
+fixable = ["ALL"]
+
+[lint.pydocstyle]
+# Numpy-style docstrings (Parameters / Returns / Raises with underline
+# separators). Matches the convention used throughout the codebase and
+# documented in user rules.
+convention = "numpy"
+
+[lint.per-file-ignores]
+# Pytest convention: descriptive function names replace docstrings, and
+# the `pytest.importorskip` guard must run before optional imports.
+"**/test_*.py" = ["D103", "E402"]
+"**/conftest.py" = ["D103"]

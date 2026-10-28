@@ -1,0 +1,4 @@
+# Developer-only Python dependencies (linting, tests, etc.).
+# Install in addition to requirements.txt.
+pytest<7 # for ROS2 Humble compatibility
+ruff

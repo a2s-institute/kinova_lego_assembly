@@ -1,0 +1,18 @@
+task_orchestrator:
+  ros__parameters:
+    # Names of the static transforms the orchestrator broadcasts at boot.
+    # For each name below there must be a matching sub-block with
+    # parent_frame, child_frame, translation ([x, y, z] in metres) and
+    # rotation ([x, y, z, w] quaternion). Keeping the frames here (instead
+    # of hard-coded in the node) makes the grip geometry a config value.
+    static_transforms: ["grip_zone", "camera_link"]
+    grip_zone:
+      parent_frame: end_effector_link
+      child_frame: grip_zone
+      translation: [0.0, 0.0, 0.17]
+      rotation: [0.0, 0.0, 0.0, 1.0]
+    camera_link:
+      parent_frame: end_effector_link
+      child_frame: camera_link
+      translation: [0.000, 0.059, 0.0]
+      rotation: [0.0, 0.0, 1.0, 0.0]

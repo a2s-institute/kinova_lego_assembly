@@ -1,0 +1,80 @@
+# ros2_control controllers for the Kinova Gen3 7dof + Robotiq 2F-85 work arm in
+# the MuJoCo simulation (DFKI mujoco_ros2_control). Adapted from kortex
+# kinova_gen3_7dof_robotiq_2f_85 config: keeps the joint state broadcaster, the
+# arm joint trajectory controller, and the gripper action controller; drops the
+# hardware-specific twist and fault-reset controllers. update_rate matches the
+# MuJoCo simulation_frequency (500 Hz).
+controller_manager:
+  ros__parameters:
+    update_rate: 500 # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    robotiq_gripper_controller:
+      type: position_controllers/GripperActionController
+
+joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6
+      - joint_7
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    state_publish_rate: 100.0
+    action_monitor_rate: 20.0
+    allow_partial_joints_goal: false
+    # rqt_joint_trajectory_controller streams single-point goals while a slider
+    # is dragged; each new goal preempts the last. open_loop_control restarts
+    # each trajectory from the previously commanded (desired) state instead of
+    # the measured state, which removes the velocity discontinuities that make
+    # the motion jerky under streamed/preempting commands.
+    open_loop_control: false
+    # Goal tolerances are checked once the trajectory's planned end time has
+    # passed; the joints then get goal_time seconds to come within goal and
+    # below stopped_velocity_tolerance, else the goal aborts with
+    # GOAL_TOLERANCE_VIOLATED. goal_time must stay below MoveIt's
+    # trajectory_execution.allowed_goal_duration_margin (sim move_group) or
+    # MoveIt cancels the goal first. Path tolerance (trajectory) stays off so
+    # tracking lag during fast segments cannot abort a good execution.
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 3.0
+      joint_1:
+        trajectory: 0.0
+        goal: 0.05
+      joint_2:
+        trajectory: 0.0
+        goal: 0.05
+      joint_3:
+        trajectory: 0.0
+        goal: 0.05
+      joint_4:
+        trajectory: 0.0
+        goal: 0.05
+      joint_5:
+        trajectory: 0.0
+        goal: 0.05
+      joint_6:
+        trajectory: 0.0
+        goal: 0.05
+      joint_7:
+        trajectory: 0.0
+        goal: 0.05
+
+robotiq_gripper_controller:
+  ros__parameters:
+    default: true
+    joint: robotiq_85_left_knuckle_joint
+    allow_stalling: true

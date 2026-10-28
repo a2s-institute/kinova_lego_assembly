@@ -1,0 +1,3 @@
+# bitbots_lego_assembly_interfaces
+
+ROS interface definitions for bitbots_lego_assembly

@@ -1,0 +1,14 @@
+# Assemble one target LEGO model. The goal identifies the model either by its
+# rule-book id (as a string, e.g. "81") or by its snake_case name (e.g. "e_stop").
+string target_model
+---
+# Result once assembly finishes (or aborts).
+bool success
+string message
+int32 bricks_completed
+---
+# Feedback emitted as the assembly progresses.
+string phase
+int32 brick_index
+int32 total_bricks
+string message

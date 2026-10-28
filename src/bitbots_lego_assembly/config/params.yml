@@ -1,0 +1,179 @@
+/**/*:
+  ros__parameters:
+    camera:
+      rgb: /camera/color/image_raw
+    detection:
+      mmor:
+        input_image_topic: ~/input_image
+        output_object_list_topic: ~/output_object_list
+    icp_pose_refinement:
+      enabled: true
+      point_cloud_topic: /camera/depth/color/points
+      marker_topic: /icp_pose_refinement/pose_markers
+      point_cloud_timeout_s: 5.0
+      transform_timeout_s: 5.0
+      # Height along base_frame +Z, measured with test_table_plane_estimate.py.
+      table_plane_z_base_frame_m: -0.025
+      footprint_padding_from_seed_m: 0.015
+      clearance_above_table_plane_m: 0.006
+      cluster_neighbor_radius_m: 0.004
+      cluster_min_points: 5
+      coarse_correspondence_max_distance_m: 0.01
+      fine_correspondence_max_distance_m: 0.004
+      max_iterations_per_stage: 80
+      min_fitness: 0.25
+      # 4x2 limit scales to 0.030 m using its doubled longest side.
+      max_seed_correction_2x2_m: 0.015
+      voxel_size_m: 0.001
+      model_sample_count: 30000
+      marker_lifetime_s: 300.0
+    segmentation:
+      model_method: yolo
+      model_version: v1
+      yolo:
+        conf: 0.85
+        iou: 0.7
+        imgsz: 640
+        retina_masks: true
+        agnostic_nms: true
+    planning_scene_obstacle:
+      enabled: true
+      apply_service: /apply_planning_scene
+      frame_id: base_link
+      service_wait_timeout_s: 0.5
+      publish_period_s: 2.0
+      # RViz cube markers are published on this topic, one per obstacle below,
+      # driven by the same cuboid_center/cuboid_size so the RViz picture matches
+      # the MoveIt collision geometry exactly (single source of truth).
+      marker_topic: /planning_scene_obstacle/marker
+      # Each id gets its own <id>.cuboid_center / <id>.cuboid_size /
+      # <id>.marker_color_rgba block. base_link is on the work arm (ARM1); the
+      # obstacle arm (ARM2) sits at negative y and the table extends beneath.
+      obstacles:
+        - second_arm_region
+        - table
+      second_arm_region:
+        cuboid_center:
+          - -0.08
+          - -0.30
+          - 0.35
+        cuboid_size:
+          - 0.50
+          - 0.19
+          - 0.75
+        marker_color_rgba:
+          - 0.9
+          - 0.2
+          - 0.2
+          - 0.4
+      table:
+        cuboid_center:
+          - 0.275
+          - -0.15
+          - -0.03
+        cuboid_size:
+          - 0.75
+          - 1.0
+          - 0.02
+        marker_color_rgba:
+          - 0.694
+          - 0.718
+          - 0.875
+          - 0.4
+    motion_planning:
+      max_velocity_scaling_factor: 0.1
+      max_acceleration_scaling_factor: 0.1
+    orchestrator:
+      blueprint_path: ""
+      base_frame: base_link
+      pose_link: end_effector_link
+      joint_states_topic: /joint_states
+      moveit_planning_group: manipulator
+      workspace_center:
+        - 0.54
+        - -0.1
+        - 0.46
+      workspace_size:
+        - 0.5
+        - 0.9
+        - 0.6
+      moveit_joint_names:
+        - joint_1
+        - joint_2
+        - joint_3
+        - joint_4
+        - joint_5
+        - joint_6
+        - joint_7
+      home_joint_positions:
+        - 0.5115443098191914
+        - 0.4147318794501404
+        - -2.7756711240195977
+        - -1.5476017915969598
+        - -0.20972287057930394
+        - -1.154274203880977
+        - 2.4929688511405255
+      place_poses:
+        pose_1_joint_positions:
+          - -0.2940481380711377
+          - 1.04421720762069
+          - -3.051770887924145
+          - -1.0910305195782115
+          - -0.07270855881690697
+          - -1.0057331982884996
+          - 1.3592842114372228
+        pose_2_joint_positions:
+          - -0.3143158592310753
+          - 0.8208020937709072
+          - -3.1216173475175446
+          - -1.6369465851113745
+          - -0.027056118778551408
+          - -0.6816589841911558
+          - 1.2903241850126566
+        pose_3_joint_positions:
+          - 0.15086770956833895
+          - 0.8083263824863766
+          - -3.0779119445521452
+          - -1.6761232826430943
+          - -0.05856451026749632
+          - -0.6489580291660726
+          - 1.809435534174172
+        pose_4_joint_positions:
+          - 0.10973074238199605
+          - 1.0293385260845809
+          - -3.0610762390889916
+          - -1.131612833533275
+          - -0.0657161630587959
+          - -0.9744596976077
+          - 1.7575989677685426
+      fast_velocity_scaling: 0.7
+      slow_velocity_scaling: 0.1
+      planning_timeout_s: 10.0
+      execution_timeout_s: 30.0
+      detection_timeout_s: 30.0
+      object_list_timeout_s: 10.0
+      segment_timeout_s: 30.0
+      grasp_timeout_s: 15.0
+      image_timeout_s: 5.0
+      gripper_timeout_s: 10.0
+      settle_velocity_tolerance: 0.01
+      settle_hold_s: 0.8
+      settle_timeout_s: 3.0
+      dummy_place_y_offset_m: -0.5
+      gripper_action: /robotiq_gripper_controller/gripper_cmd
+      gripper_short_axis_closed_position: 0.527
+      # Height above the place pose where the closed gripper
+      # starts the snap move
+      pre_snap_offset_m: 0.035
+      #  Depth offset relative to the place pose for snapping
+      snap_pose_offset_m: 0.01
+      # Grasp search: shift a fully failed candidate group along grasp frame x
+      grasp_x_offset_step_m: 0.002
+      grasp_x_offset_steps: 5
+      gripper_max_effort: 65.0
+      gripper_closed_tolerance_rad: 0.05
+      object_detection_action: /object_detection
+      object_list_topic: /world_model_node/object_list
+      segment_service: /LegoSegmentation/segment_image
+      health_check_timeout_s: 15.0
+      tree_tick_period_s: 0.1

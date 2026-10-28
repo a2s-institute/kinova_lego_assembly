@@ -1,0 +1,64 @@
+/**:
+  ros__parameters:
+    camera:
+      rgb:
+        topic: /camera/color/image_raw
+        info_topic: /camera/color/camera_info
+        frame_id: camera_color_frame
+        encoding: bgr8
+        # Publish the color-registered cloud from this camera's shared RGB-D
+        # render. This matches the real camera: image and organized cloud use
+        # the same 640x480 color pixel grid and camera_color_frame.
+        point_cloud: true
+        resolution:
+          height: 480
+          width: 640
+        camera_info:
+          k: [
+            653.68229, 0.00000,    311.753415, 
+            0.00000,   651.855994, 232.400954, 
+            0.00000,   0.00000,    1.00000
+            ]
+          r: [
+            1.00000, 0.00000, 0.00000, 
+            0.00000, 1.00000, 0.00000, 
+            0.00000, 0.00000, 1.00000
+            ]
+          p: [
+            653.236267, 0.00000,    311.300997, 0.00000, 
+            0.00000,    653.749329, 232.795105, 0.00000, 
+            0.00000,    0.00000,    1.00000,    0.00000
+          ]
+      depth:
+        topic: /camera/depth/image_raw
+        info_topic: /camera/depth/camera_info
+        points_topic: /camera/depth/color/points
+        frame_id: camera_depth_frame
+        encoding: 16UC1
+        # Raw depth remains at its native 480x270 resolution. Its separate
+        # camera instance must not also publish the registered cloud.
+        point_cloud: false
+        resolution:
+          height: 270
+          width: 480
+        camera_info:
+          k: [
+            360.01333, 0.00000,       243.87228,
+            0.00000,   360.013366699, 137.9218444,
+            0.00000,   0.00000,       1.00000
+            ]
+          r: [
+            1.00000, 0.00000, 0.00000, 
+            0.00000, 1.00000, 0.00000, 
+            0.00000, 0.00000, 1.00000
+            ]
+          p: [
+            360.01333, 0.00000,       243.87228,   0.00000, 
+            0.00000,   360.013366699, 137.9218444, 0.00000, 
+            0.00000,   0.00000,       1.00000,     0.00000
+            ]
+
+
+# reference: 
+# rgb camera info https://github.com/Kinovarobotics/ros2_kortex_vision/blob/d1d0213beb8b85c0cfe9c1a44bc30759671737b2/launch/calibration/default_color_calib_640x480.ini#L4
+# depth camera info https://github.com/Kinovarobotics/ros2_kortex_vision/blob/d1d0213beb8b85c0cfe9c1a44bc30759671737b2/launch/calibration/default_depth_calib_480x270.ini#L4x

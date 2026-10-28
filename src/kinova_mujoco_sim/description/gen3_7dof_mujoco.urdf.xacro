@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<!--
+  Top-level robot_description for the Kinova MuJoCo work cell work arm.
+
+  Composes:
+    * the upstream kortex_description Gen3 7dof arm (load_arm, vision=true),
+    * the Gen3 ros2_control system using mujoco_ros2_control/MujocoSystem,
+    * the kortex/robotiq 2F-85 gripper geometry (its own ros2_control is
+      suppressed by the flags below), and
+    * the gripper ros2_control system using mujoco_ros2_control/MujocoSystem.
+
+  kortex load_arm unconditionally emits its own <ros2_control> block (kortex
+  driver / mock / gazebo, never MuJoCo) and, with vision=true, three wrist
+  camera frames mounted on end_effector_link. The launch file post-processes the
+  generated URDF (see _strip_kortex_artifacts) to drop every non-MujocoSystem
+  <ros2_control> block and the kortex camera_link + its camera/color/depth_module
+  joints, so only our MujocoSystem control and our bracelet-mounted camera frames
+  (declared below) remain. This keeps the kortex geometry upstream rather than
+  forking it.
+
+  The world -> base_link transform is placed at the work arm anchor so the URDF
+  kinematics line up with the work arm pose baked into the dumped MJCF. The
+  anchor and initial joint positions are passed in from the launch file (single
+  source of truth in kinova_mujoco_sim.core.scene.layout / config/home_pose.yaml).
+-->
+<robot xmlns:xacro="http://ros.org/wiki/xacro" name="$(arg name)">
+
+  <xacro:arg name="name" default="gen3" />
+  <xacro:arg name="prefix" default="" />
+  <xacro:arg name="vision" default="true" />
+
+  <!-- world -> base_link placement (work arm anchor), metres -->
+  <xacro:arg name="arm_x" default="0.0" />
+  <xacro:arg name="arm_y" default="0.0" />
+  <xacro:arg name="arm_z" default="0.0" />
+
+  <!-- initial joint positions (home pose) -->
+  <xacro:arg name="init_joint_1" default="0.0" />
+  <xacro:arg name="init_joint_2" default="0.0" />
+  <xacro:arg name="init_joint_3" default="0.0" />
+  <xacro:arg name="init_joint_4" default="0.0" />
+  <xacro:arg name="init_joint_5" default="0.0" />
+  <xacro:arg name="init_joint_6" default="0.0" />
+  <xacro:arg name="init_joint_7" default="0.0" />
+  <xacro:arg name="init_gripper" default="0.0" />
+
+  <xacro:include filename="$(find kortex_description)/arms/gen3/7dof/urdf/gen3_macro.xacro" />
+  <xacro:include filename="$(find kinova_mujoco_sim)/description/sim.ros2_control.xacro" />
+  <!-- robotiq_description directly (kortex load_gripper wrapper is incompatible
+       with the installed robotiq_description macro signature). -->
+  <xacro:include filename="$(find robotiq_description)/urdf/robotiq_2f_85_macro.urdf.xacro" />
+
+  <link name="world" />
+
+  <!-- Arm geometry from upstream kortex_description. load_arm always emits a
+       kortex <ros2_control> block (here the mock plugin via use_fake_hardware)
+       and, with vision=true, wrist camera frames; both are stripped by the
+       launch post-process. robot_ip / gripper* are unused placeholders. -->
+  <xacro:load_arm
+    parent="world"
+    dof="7"
+    vision="$(arg vision)"
+    prefix="$(arg prefix)"
+    robot_ip="0.0.0.0"
+    use_fake_hardware="true"
+    gripper_joint_name="finger_joint"
+    use_external_cable="false">
+    <origin xyz="$(arg arm_x) $(arg arm_y) $(arg arm_z)" rpy="0 0 0" />
+  </xacro:load_arm>
+
+  <!-- Arm ros2_control (MujocoSystem) -->
+  <xacro:gen3_sim_ros2_control
+    name="$(arg prefix)KinovaGen3MujocoSystem"
+    prefix="$(arg prefix)"
+    initial_positions="${dict(
+      joint_1=$(arg init_joint_1),
+      joint_2=$(arg init_joint_2),
+      joint_3=$(arg init_joint_3),
+      joint_4=$(arg init_joint_4),
+      joint_5=$(arg init_joint_5),
+      joint_6=$(arg init_joint_6),
+      joint_7=$(arg init_joint_7))}" />
+
+  <!-- Gripper geometry from robotiq_description; include_ros2_control=false so
+       its own hardware interface is omitted and only our MujocoSystem gripper
+       control is used. Mounted at the arm tool frame (end_effector_link). -->
+  <xacro:robotiq_gripper
+    name="$(arg prefix)Robotiq2f85"
+    prefix="$(arg prefix)"
+    parent="$(arg prefix)end_effector_link"
+    include_ros2_control="false">
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:robotiq_gripper>
+
+  <!-- Gripper ros2_control (MujocoSystem) -->
+  <xacro:gripper_sim_ros2_control
+    name="$(arg prefix)Robotiq2f85MujocoSystem"
+    prefix="$(arg prefix)"
+    initial_position="$(arg init_gripper)" />
+
+  <!--
+    Wrist camera optical frames.
+
+    The camera_color_frame / camera_depth_frame links themselves come from kortex
+    load_arm (vision=true). kortex parents them to end_effector_link via its
+    camera/color/depth_module joints, which the launch post-process removes; we
+    re-parent the same links to bracelet_link here so they match the MuJoCo wrist
+    camera (models/mujoco/arm/gen3.xml: <camera name="wrist"/"wrist_depth"> at
+    pos="0 -0.05639 -0.058475" quat="0 0 0 1"). The camera node publishes images
+    and clouds in these frames (camera.yaml frame_ids) but broadcasts no TF, so
+    robot_state_publisher publishes them from these fixed joints. The rpy="0 pi 0"
+    converts the MuJoCo camera axes (-Z view, +X right, +Y up) into the ROS
+    optical convention (+Z forward, +X right, +Y down).
+  -->
+  <joint name="camera_color_frame_joint" type="fixed">
+    <origin xyz="0 -0.05639 -0.058475" rpy="0 ${pi} 0" />
+    <parent link="$(arg prefix)bracelet_link" />
+    <child link="$(arg prefix)camera_color_frame" />
+  </joint>
+
+  <joint name="camera_depth_frame_joint" type="fixed">
+    <origin xyz="0 -0.05639 -0.058475" rpy="0 ${pi} 0" />
+    <parent link="$(arg prefix)bracelet_link" />
+    <child link="$(arg prefix)camera_depth_frame" />
+  </joint>
+
+</robot>

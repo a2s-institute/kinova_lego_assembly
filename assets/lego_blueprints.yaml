@@ -1,0 +1,71 @@
+# Canonical catalog of LEGO brick variants and build instructions for the four
+# target models. The schema, field semantics, invariants, and rationale all
+# live in the ADR:
+#
+#   docs/adr/0009-blueprint-schema.md
+#
+# Validate any edit with:
+#
+#   python3 scripts/lint_blueprints.py
+
+blocks:
+  - id: 1
+    type: "2x2"
+    colour: red
+    description: "red 2x2 lego brick"
+  - id: 2
+    type: "2x2"
+    colour: green
+    description: "green 2x2 lego brick"
+  - id: 3
+    type: "2x2"
+    colour: blue
+    description: "blue 2x2 lego brick"
+  - id: 4
+    type: "2x2"
+    colour: yellow
+    description: "yellow 2x2 lego brick"
+  - id: 5
+    type: "4x2"
+    colour: red
+    description: "red 4x2 lego brick"
+  - id: 6
+    type: "4x2"
+    colour: green
+    description: "green 4x2 lego brick"
+  - id: 7
+    type: "4x2"
+    colour: blue
+    description: "blue 4x2 lego brick"
+  - id: 8
+    type: "4x2"
+    colour: yellow
+    description: "yellow 4x2 lego brick"
+
+models:
+  - id: 34
+    name: battery
+    steps:
+      - { id: 3 }
+      - { id: 4 }
+
+  - id: 81
+    name: e_stop
+    steps:
+      - { id: 8 }
+      - { id: 1 }
+
+  - id: 241
+    name: traffic_light
+    steps:
+      - { id: 2 }
+      - { id: 4 }
+      - { id: 1 }
+
+  - id: 4482
+    name: big_carrot
+    steps:
+      - { id: 4 }
+      - { id: 4 }
+      - { id: 8 }
+      - { id: 2 }

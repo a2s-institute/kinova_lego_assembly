@@ -1,0 +1,10 @@
+numpy<2 # for ROS2 Humble compatibility
+onnxruntime
+onnxruntime-gpu[cuda,cudnn]
+open3d
+PyYAML
+scipy
+setuptools==59.6 # for ROS2 Humble compatibility
+torch
+transforms3d>=0.4
+ultralytics

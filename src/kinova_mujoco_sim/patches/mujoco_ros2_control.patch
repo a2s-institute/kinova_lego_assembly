@@ -1,0 +1,391 @@
+diff --git a/mujoco_ros2_control/include/mujoco_rgbd_camera/mujoco_depth_camera.hpp b/mujoco_ros2_control/include/mujoco_rgbd_camera/mujoco_depth_camera.hpp
+index a73269c..770c9ae 100644
+--- a/mujoco_ros2_control/include/mujoco_rgbd_camera/mujoco_depth_camera.hpp
++++ b/mujoco_ros2_control/include/mujoco_rgbd_camera/mujoco_depth_camera.hpp
+@@ -250,6 +250,16 @@ private:
+      */
+     void set_camera_intrinsics(mjrRect viewport);
+ 
++    /**
++     * @brief Apply explicit camera intrinsics to the rendered GL frustum.
++     *
++     * MuJoCo fixed cameras otherwise keep the projection encoded in the MJCF,
++     * which can differ from the calibrated ROS camera_info used to deproject
++     * the point cloud. This makes rendered pixels and published XYZ use one
++     * projection, including an off-centre principal point.
++     */
++    void apply_calibrated_frustum();
++
+     /**
+      * @brief Aims the two scene GL cameras at the given site (site-based cameras).
+      *
+diff --git a/mujoco_ros2_control/include/mujoco_ros2_control/mujoco_system.hpp b/mujoco_ros2_control/include/mujoco_ros2_control/mujoco_system.hpp
+index 82a9569..b84624d 100644
+--- a/mujoco_ros2_control/include/mujoco_ros2_control/mujoco_system.hpp
++++ b/mujoco_ros2_control/include/mujoco_ros2_control/mujoco_system.hpp
+@@ -254,7 +254,10 @@ namespace mujoco_ros2_control {
+          */
+         struct JointData {
+             std::string name;  ///< Name of the joint.
+-            double lower_limit = std::numeric_limits<double>::min();  ///< Lower limit of the joint position.
++            // lowest(), not min(): min() is the smallest positive normalized double, which
++            // would clamp every negative position command on joints without URDF limits
++            // (continuous joints) to ~0.
++            double lower_limit = std::numeric_limits<double>::lowest();  ///< Lower limit of the joint position.
+             double upper_limit = std::numeric_limits<double>::max();  ///< Upper limit of the joint position.
+             double velocity_limit = std::numeric_limits<double>::max();  ///< Limit on the joint velocity.
+             double acceleration_limit = std::numeric_limits<double>::max();  ///< Limit on the joint acceleration.
+diff --git a/mujoco_ros2_control/src/mujoco_depth_camera.cpp b/mujoco_ros2_control/src/mujoco_depth_camera.cpp
+index 24daea2..ad1f113 100644
+--- a/mujoco_ros2_control/src/mujoco_depth_camera.cpp
++++ b/mujoco_ros2_control/src/mujoco_depth_camera.cpp
+@@ -41,6 +41,7 @@
+ 
+ #include <algorithm>
+ #include <cmath>
++#include <limits>
+ #include <vector>
+ 
+ namespace mujoco_rgbd_camera {
+@@ -78,7 +79,15 @@ namespace mujoco_rgbd_camera {
+         // fovy with independent fx/fy (e.g. to match a calibrated RealSense).
+         render_width_ = width_;
+         render_height_ = height_;
+-        if (mount_ == Mount::Site && fovx_ > 0.0) {
++        if (params_.camera_info_k.size() == 9) {
++            // The GL horizontal field of view follows the framebuffer aspect.
++            // Choose that aspect from fx/fy so a later resize to width_ x
++            // height_ preserves both calibrated focal lengths.
++            const double fx = params_.camera_info_k[0];
++            const double fy = params_.camera_info_k[4];
++            render_width_ = std::max(
++                1, static_cast<int>(std::lround(width_ * fy / fx)));
++        } else if (mount_ == Mount::Site && fovx_ > 0.0) {
+             const double aspect =
+                 std::tan(fovx_ / 360.0 * M_PI) / std::tan(fovy_ / 360.0 * M_PI);
+             render_height_ = height_;
+@@ -97,6 +106,9 @@ namespace mujoco_rgbd_camera {
+         };
+         if (have_color_) color_frame_ = body_name_of(optical_id_);
+         if (have_depth_) depth_frame_ = body_name_of(depth_id_);
++        // Explicit frame ids take precedence over the mounted-body default.
++        if (!params_.color_frame_id.empty()) color_frame_ = params_.color_frame_id;
++        if (!params_.depth_frame_id.empty()) depth_frame_ = params_.depth_frame_id;
+         body_name_ = have_depth_ ? depth_frame_ : color_frame_;
+ 
+         // Clip planes are stored in the model as fractions of the model extent;
+@@ -137,7 +149,11 @@ namespace mujoco_rgbd_camera {
+         mjv_makeScene(mujoco_model_, &sensor_scene_, 2000);
+         mjr_makeContext(mujoco_model_, &sensor_context_, mjFONTSCALE_150);
+ 
+-        mjr_setBuffer(mjFB_WINDOW, &sensor_context_);
++        // Render into MuJoCo's offscreen framebuffer (sized by the model's
++        // visual/global offwidth/offheight) rather than the hidden window's
++        // framebuffer: reading back the window buffer captures the host screen
++        // on some GL/compositor stacks instead of the rendered scene.
++        mjr_setBuffer(mjFB_OFFSCREEN, &sensor_context_);
+ 
+         // Topic namespace defaults to the node name but can be overridden. A stream
+         // is only published if its mount (optical/depth site) is present.
+@@ -184,9 +200,10 @@ namespace mujoco_rgbd_camera {
+                 auto context = glfwGetCurrentContext();
+                 glfwMakeContextCurrent(window_);
+ 
+-                // get framebuffer viewport
+-                mjrRect viewport = {0, 0, 0, 0};
+-                glfwGetFramebufferSize(window_, &viewport.width, &viewport.height);
++                // Render at the configured size into the offscreen buffer; the
++                // hidden window's framebuffer size is irrelevant for offscreen
++                // rendering (and would clamp to the screen-derived default).
++                mjrRect viewport = {0, 0, render_width_, render_height_};
+                 set_camera_intrinsics(viewport);
+ 
+                 if (single_pass) {
+@@ -197,6 +214,7 @@ namespace mujoco_rgbd_camera {
+                     }
+                     mjv_updateScene(mujoco_model_, mujoco_data_, &sensor_option_, NULL,
+                                     &rgbd_camera_, mjCAT_ALL, &sensor_scene_);
++                    apply_calibrated_frustum();
+                     mjr_render(viewport, &sensor_scene_, &sensor_context_);
+                     const bool read_color = want_color || params_.point_cloud;
+                     read_buffers(viewport,
+@@ -211,6 +229,7 @@ namespace mujoco_rgbd_camera {
+                         aim_at_site(depth_id_);
+                         mjv_updateScene(mujoco_model_, mujoco_data_, &sensor_option_, NULL,
+                                         &rgbd_camera_, mjCAT_ALL, &sensor_scene_);
++                        apply_calibrated_frustum();
+                         mjr_render(viewport, &sensor_scene_, &sensor_context_);
+                         read_buffers(viewport,
+                                      params_.point_cloud ? &depth_color_image_ : nullptr,
+@@ -221,6 +240,7 @@ namespace mujoco_rgbd_camera {
+                         aim_at_site(optical_id_);
+                         mjv_updateScene(mujoco_model_, mujoco_data_, &sensor_option_, NULL,
+                                         &rgbd_camera_, mjCAT_ALL, &sensor_scene_);
++                        apply_calibrated_frustum();
+                         mjr_render(viewport, &sensor_scene_, &sensor_context_);
+                         read_buffers(viewport, &color_image_, nullptr);
+                     }
+@@ -253,6 +273,17 @@ namespace mujoco_rgbd_camera {
+     }
+ 
+     void MujocoDepthCamera::set_camera_intrinsics(const mjrRect viewport) {
++        // An explicit intrinsic matrix (camera_info_k) wins over the FOV-derived
++        // values so the published camera_info and the point cloud share the same
++        // calibrated fx/fy/cx/cy.
++        if (params_.camera_info_k.size() == 9) {
++            fx_ = params_.camera_info_k[0];
++            fy_ = params_.camera_info_k[4];
++            cx_ = params_.camera_info_k[2];
++            cy_ = params_.camera_info_k[5];
++            (void)viewport;
++            return;
++        }
+         // Intrinsics describe the published image (width_ x height_), not the GL
+         // framebuffer (which may differ when fovx is set independently).
+         // vertical FOV: from the MJCF camera for <camera> mounts, from fovy for sites.
+@@ -277,6 +308,25 @@ namespace mujoco_rgbd_camera {
+         (void)viewport;
+     }
+ 
++    void MujocoDepthCamera::apply_calibrated_frustum() {
++        if (params_.camera_info_k.size() != 9) {
++            return;
++        }
++
++        // mjv_updateScene sets the camera pose and metric near/far planes. Keep
++        // those, but replace the projection with the ROS calibration. The
++        // framebuffer aspect was selected above to preserve both fx and fy.
++        for (int eye = 0; eye < 2; ++eye) {
++            mjvGLCamera &camera = sensor_scene_.camera[eye];
++            const double near = camera.frustum_near;
++            camera.frustum_bottom =
++                static_cast<float>(-near * (height_ - cy_) / fy_);
++            camera.frustum_top = static_cast<float>(near * cy_ / fy_);
++            camera.frustum_center =
++                static_cast<float>(near * (width_ / 2.0 - cx_) / fx_);
++        }
++    }
++
+     void MujocoDepthCamera::aim_at_site(int site_id) {
+         // Site world pose: position and 3x3 rotation (row-major).
+         const mjtNum *spos = mujoco_data_->site_xpos + 3 * site_id;
+@@ -382,11 +432,18 @@ namespace mujoco_rgbd_camera {
+         rgb_cloud.header.frame_id = depth_frame_;
+ 
+         pcl::PointXYZRGB* point_ptr = rgb_cloud.data();
++        const float nan = std::numeric_limits<float>::quiet_NaN();
++        const double far_m = z_far_ * extent_;
+         for (int i = 0; i < depth_image_.rows; i++) {
+             for (int j = 0; j < depth_image_.cols; j++) {
+                 double depth = *(depth_image_.ptr<float>(i,j));
+-                // filter far points
+-                if (depth < z_far_) {
++                // Match depth-camera convention: pixels at the GL far plane are
++                // invalid and represented as NaN, not a finite camera-origin
++                // point that contaminates ROI centroid/PCA calculations.
++                point_ptr->x = nan;
++                point_ptr->y = nan;
++                point_ptr->z = nan;
++                if (std::isfinite(depth) && depth < far_m * (1.0 - 1e-6)) {
+                     // REP-103 optical frame: X right, Y down, Z forward
+                     point_ptr->x = static_cast<float>(double(j - cx_) * depth / fx_);
+                     point_ptr->y = static_cast<float>(double(i - cy_) * depth / fy_);
+@@ -418,15 +475,35 @@ namespace mujoco_rgbd_camera {
+         camera_info.height = height_;
+         camera_info.width = width_;
+         camera_info.distortion_model = "plumb_bob";
+-        camera_info.k = {fx_, 0.0, cx_,
+-                         0.0, fy_, cy_,
+-                         0.0, 0.0, 1.0};
++        if (params_.camera_info_k.size() == 9) {
++            std::copy(params_.camera_info_k.begin(), params_.camera_info_k.end(),
++                      camera_info.k.begin());
++        } else {
++            camera_info.k = {fx_, 0.0, cx_,
++                             0.0, fy_, cy_,
++                             0.0, 0.0, 1.0};
++        }
+ 
+         camera_info.d = {0.0, 0.0, 0.0, 0.0, 0.0};
+ 
+-        camera_info.p = {fx_, 0.0, cx_, 0,
+-                         0.0, fy_, cy_, 0,
+-                         0.0, 0.0, 1.0, 0.0};
++        if (params_.camera_info_r.size() == 9) {
++            std::copy(params_.camera_info_r.begin(), params_.camera_info_r.end(),
++                      camera_info.r.begin());
++        } else {
++            camera_info.r = {1.0, 0.0, 0.0,
++                             0.0, 1.0, 0.0,
++                             0.0, 0.0, 1.0};
++        }
++
++        if (params_.camera_info_p.size() == 12) {
++            camera_info.p = {};
++            std::copy(params_.camera_info_p.begin(), params_.camera_info_p.end(),
++                      camera_info.p.begin());
++        } else {
++            camera_info.p = {fx_, 0.0, cx_, 0,
++                             0.0, fy_, cy_, 0,
++                             0.0, 0.0, 1.0, 0.0};
++        }
+ 
+         if (color_camera_info_publisher_) {
+             camera_info.header.frame_id = color_frame_;
+@@ -448,8 +525,18 @@ namespace mujoco_rgbd_camera {
+         sensor_msgs::msg::Image out_image;
+ 
+         if (color_image_publisher_) {
+-            cv_ptr->image = color_image_;
+-            cv_ptr->encoding = "8UC3";
++            // The internal buffer holds BGR-ordered bytes (the GL RGB readback
++            // wrapped as BGR + cvtColor swap in read_buffers). Publish as-is
++            // for bgr8, or swap to rgb8 if the user asked for that encoding.
++            if (params_.color_encoding == "rgb8") {
++                cv::Mat rgb;
++                cv::cvtColor(color_image_, rgb, cv::COLOR_BGR2RGB);
++                cv_ptr->image = rgb;
++                cv_ptr->encoding = "rgb8";
++            } else {
++                cv_ptr->image = color_image_;
++                cv_ptr->encoding = "bgr8";
++            }
+             cv_ptr->toImageMsg(out_image);
+             out_image.header.stamp = stamp_;
+             out_image.header.frame_id = color_frame_;
+@@ -457,8 +544,16 @@ namespace mujoco_rgbd_camera {
+         }
+ 
+         if (depth_image_publisher_) {
+-            cv_ptr->image = depth_image_;
+-            cv_ptr->encoding = "32FC1";
++            if (params_.depth_in_millimeters) {
++                // Convert metric depth (m, float) to 16UC1 millimeters.
++                cv::Mat depth_mm;
++                depth_image_.convertTo(depth_mm, CV_16UC1, 1000.0);
++                cv_ptr->image = depth_mm;
++                cv_ptr->encoding = "16UC1";
++            } else {
++                cv_ptr->image = depth_image_;
++                cv_ptr->encoding = "32FC1";
++            }
+             cv_ptr->toImageMsg(out_image);
+             out_image.header.stamp = stamp_;
+             out_image.header.frame_id = depth_frame_;
+diff --git a/mujoco_ros2_control/src/mujoco_rgbd_camera_parameters.yaml b/mujoco_ros2_control/src/mujoco_rgbd_camera_parameters.yaml
+index 63499e2..c1f651a 100644
+--- a/mujoco_ros2_control/src/mujoco_rgbd_camera_parameters.yaml
++++ b/mujoco_ros2_control/src/mujoco_rgbd_camera_parameters.yaml
+@@ -100,4 +100,53 @@ mujoco_rgbd_camera:
+     default_value: true,
+     read_only: true,
+     description: "Publish Point Cloud"
+-  }
+\ No newline at end of file
++  }
++
++  color_frame_id: {
++    type: string,
++    default_value: "",
++    read_only: true,
++    description: "Override the header.frame_id of the color image and color camera_info. If empty, the body the camera/site is mounted on is used."
++  }
++
++  depth_frame_id: {
++    type: string,
++    default_value: "",
++    read_only: true,
++    description: "Override the header.frame_id of the depth image, depth camera_info and point cloud. If empty, the body the camera/site is mounted on is used."
++  }
++
++  depth_in_millimeters: {
++    type: bool,
++    default_value: false,
++    read_only: true,
++    description: "Publish the depth image as 16UC1 in millimeters instead of 32FC1 in meters."
++  }
++
++  camera_info_k: {
++    type: double_array,
++    default_value: [],
++    read_only: true,
++    description: "Explicit 3x3 intrinsic matrix (row-major, 9 values) for camera_info.k. If empty, intrinsics are derived from the field of view and resolution."
++  }
++
++  camera_info_p: {
++    type: double_array,
++    default_value: [],
++    read_only: true,
++    description: "Explicit 3x4 projection matrix (row-major, 12 values) for camera_info.p. If empty, it is built from the intrinsics."
++  }
++
++  camera_info_r: {
++    type: double_array,
++    default_value: [],
++    read_only: true,
++    description: "Explicit 3x3 rectification matrix (row-major, 9 values) for camera_info.r. If empty, identity is used."
++  }
++
++  color_encoding: {
++    type: string,
++    default_value: "bgr8",
++    read_only: true,
++    description: "sensor_msgs image encoding for the published color image. Must be one of 'bgr8' or 'rgb8'. The internal buffer is BGR; rgb8 triggers a cvtColor swap before publishing."
++  }
+diff --git a/mujoco_ros2_control/src/mujoco_system.cpp b/mujoco_ros2_control/src/mujoco_system.cpp
+index ec2342f..18e3a7a 100644
+--- a/mujoco_ros2_control/src/mujoco_system.cpp
++++ b/mujoco_ros2_control/src/mujoco_system.cpp
+@@ -291,7 +291,12 @@ namespace mujoco_ros2_control {
+                 RCLCPP_INFO(rclcpp::get_logger(actuator_name), "added effort actuator for joint: %s", joints_[joint_name].name.c_str());
+             } else if(dynprm[0]  == 1 && dynprm[1] == 0 && dynprm[2]  == 0 &&
+                       gainprm[0] == -1*biasprm[1] && gainprm[1] == 0 && gainprm[2] == 0 &&
+-                      biasprm[0] == 0 && biasprm[2] == 0) {
++                      biasprm[0] == 0) {
++                // Position actuator: gainprm=[kp,0,0], biasprm=[0,-kp,-kv]. A
++                // non-zero biasprm[2] (kv, velocity feedback) is allowed so that
++                // PD position actuators (kp + kv damping, force clamped by the
++                // actuator forcerange) are still driven by a position command.
++                // Velocity actuators have biasprm[1]==0 and so never match here.
+                 joints_[joint_name].actuators.insert(std::pair<ControlMethod, int>(POSITION, mujoco_actuator_id));
+                 RCLCPP_INFO(rclcpp::get_logger(actuator_name), "added position actuator for joint: %s", joints_[joint_name].name.c_str());
+             } else if(dynprm[0]  == 1 && dynprm[1] == 0 && dynprm[2]  == 0 &&
+@@ -442,11 +447,13 @@ namespace mujoco_ros2_control {
+ 
+                 // check if an actuator is available
+                 if (actuators.find(POSITION) != actuators.end()) {
+-                    // write to actuator ctrl
+-                    if (position != joint.last_command) {
+-                        joint.last_command = position;
+-                        mujoco_data_->ctrl[actuators[POSITION]] = position;
+-                    }
++                    // Continuously assert the commanded ctrl so ros2_control stays
++                    // authoritative. Writing only on change lets external writers
++                    // (e.g. the MuJoCo GUI control sliders, which share mjData.ctrl)
++                    // desync the actuator; re-commanding the same value would then be
++                    // a no-op and the joint would never return to the controller value.
++                    joint.last_command = position;
++                    mujoco_data_->ctrl[actuators[POSITION]] = position;
+                 } else {
+                     pid.position = true;
+                     double position_error = position - mujoco_data_->qpos[joint.mujoco_qpos_addr];
+@@ -470,10 +477,9 @@ namespace mujoco_ros2_control {
+                                              joint.velocity_limit);
+                 // check if an actuator is available
+                 if (actuators.find(VELOCITY) != actuators.end()) {
+-                    // write to actuator ctrl
+-                    if (velocity != joint.last_command) {
+-                        mujoco_data_->ctrl[actuators[VELOCITY]] = velocity;
+-                    }
++                    // Continuously assert ctrl (see POSITION note above).
++                    joint.last_command = velocity;
++                    mujoco_data_->ctrl[actuators[VELOCITY]] = velocity;
+                 } else {
+                     pid.velocity = true;
+                     if (pid.position) {
+diff --git a/mujoco_ros2_control_examples/AMENT_IGNORE b/mujoco_ros2_control_examples/AMENT_IGNORE
+new file mode 100644
+index 0000000..e69de29
+diff --git a/mujoco_ros2_control_examples/COLCON_IGNORE b/mujoco_ros2_control_examples/COLCON_IGNORE
+new file mode 100644
+index 0000000..e69de29

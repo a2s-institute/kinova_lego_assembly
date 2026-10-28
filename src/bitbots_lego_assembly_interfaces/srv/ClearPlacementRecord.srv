@@ -1,0 +1,5 @@
+# One-based holder-board place index to free (1..N), or -1 to free all.
+int32 place_index
+---
+bool success
+string message

@@ -1,0 +1,51 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+
+  <name>bitbots_lego_assembly</name>
+  <version>0.0.0</version>
+  <description>TODO</description>
+
+  <maintainer email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</author>
+  <author email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</author>
+  <author email="jay.patil@smail.inf.h-brs.de">Jay Patil</author>
+  <author email="suhail.rafi@smail.inf.h-brs.de">Suhail Rafi</author>
+
+  <license>TODO</license>
+
+  <depend>geometry_msgs</depend>
+  <depend>ament_index_python</depend>
+  <depend>interactive_markers</depend>
+  <depend>moveit_msgs</depend>
+  <depend>rclpy</depend>
+  <depend>shape_msgs</depend>
+  <depend>std_srvs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>sensor_msgs_py</depend>
+  <depend>tf2_ros</depend>
+  <depend>tf_transformations</depend>
+  <depend>visualization_msgs</depend>
+  <depend>cv_bridge</depend>
+  <depend>moveit_configs_utils</depend>
+  <depend>moveit_ros_move_group</depend>
+  <depend>rviz2</depend>
+  <depend>xacro</depend>
+  <depend>bitbots_lego_assembly_interfaces</depend>
+  <depend>mir_interfaces</depend>
+  <depend>kinova_mujoco_sim</depend>
+  <depend>std_msgs</depend>
+  <depend>control_msgs</depend>
+  <depend>action_msgs</depend>
+  <depend>tf2_geometry_msgs</depend>
+  <depend>py_trees</depend>
+  <depend>py_trees_ros</depend>
+  <depend>py_trees_ros_viewer</depend>
+  <exec_depend>mir_object_recognition</exec_depend>
+  <exec_depend>python3-scipy</exec_depend>
+
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+
+</package>

@@ -1,0 +1,5 @@
+mujoco==3.9.0 # must match the mujoco_ros2_control C++ MuJoCo
+numpy<2 # for ROS2 Humble compatibility
+opencv-python
+pytransform3d
+setuptools==59.6 # for ROS2 Humble compatibility
