@@ -1,4 +1,4 @@
-# Ruff configuration for the bitbots_lego_assembly project.
+# Ruff configuration for the kinova_lego_assembly project.
 #
 # Ruff replaces pyflakes + pycodestyle + isort + pyupgrade + flake8-bugbear
 # in one Rust binary. The rule selection below is intentionally conservative:

@@ -18,7 +18,7 @@ from tf2_ros import Buffer
 from tf_transformations import quaternion_from_matrix, quaternion_matrix
 from visualization_msgs.msg import Marker, MarkerArray
 
-from bitbots_lego_assembly.core.icp import (
+from kinova_lego_assembly.core.icp import (
     BRICK_HALF_HEIGHT_M,
     BrickModel,
     crop_observed_brick,
@@ -105,7 +105,7 @@ class IcpPoseRefiner:
                 "model_sample_count must be positive and marker_lifetime_s must be non-negative"
             )
         mesh_directory = (
-            Path(get_package_share_directory("bitbots_lego_assembly"))
+            Path(get_package_share_directory("kinova_lego_assembly"))
             / "assets/meshes/lego_duplo_bricks"
         )
         self._models: dict[str, BrickModel] = {}

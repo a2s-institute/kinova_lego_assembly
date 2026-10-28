@@ -7,7 +7,7 @@ Layout convention::
 
 Versions are picked by the highest integer suffix in ``v<N>`` when no
 explicit version is requested. The root can be overridden through the
-``BITBOTS_LEGO_MODELS_ROOT`` environment variable (handy for tests).
+``KINOVA_LEGO_MODELS_ROOT`` environment variable (handy for tests).
 """
 
 from __future__ import annotations
@@ -25,9 +25,9 @@ def models_root() -> Path:
 
     The lookup order is:
 
-    1. ``$BITBOTS_LEGO_MODELS_ROOT`` if set (ROS launch and tests use this).
+    1. ``$KINOVA_LEGO_MODELS_ROOT`` if set (ROS launch and tests use this).
     2. The first ancestor of this file whose name is
-       ``bitbots_lego_assembly`` and which contains a ``trained_models``
+       ``kinova_lego_assembly`` and which contains a ``trained_models``
        directory (matches the source-tree layout in dev installs).
 
     Returns
@@ -36,7 +36,7 @@ def models_root() -> Path:
         The resolved root, or a non-existent placeholder when no candidate
         is found (callers handle missing directories explicitly).
     """
-    env = os.environ.get("BITBOTS_LEGO_MODELS_ROOT")
+    env = os.environ.get("KINOVA_LEGO_MODELS_ROOT")
     if env:
         return Path(env).expanduser().resolve()
 

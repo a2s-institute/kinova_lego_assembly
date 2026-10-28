@@ -14,7 +14,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PATCH_FILE="${SCRIPT_DIR}/mujoco_ros2_control.patch"
 
-# <ws>/src/bitbots_lego_assembly/src/kinova_mujoco_sim/patches -> <ws>
+# <ws>/src/kinova_lego_assembly/src/kinova_mujoco_sim/patches -> <ws>
 WORKSPACE_ROOT="$(cd "${SCRIPT_DIR}/../../../../.." && pwd)"
 DEFAULT_TARGET="${WORKSPACE_ROOT}/src/mujoco_ros2_control"
 

@@ -16,7 +16,7 @@ time to publish ``/robot_description`` and expose controllers before
 ``move_group`` initialises.
 
 Usage:
-    ros2 launch bitbots_lego_assembly launch_sim_moveit.launch.py
+    ros2 launch kinova_lego_assembly launch_sim_moveit.launch.py
 """
 
 from __future__ import annotations
@@ -88,7 +88,7 @@ def generate_launch_description() -> LaunchDescription:
         home=home,
     )
     rviz_config = str(
-        Path(get_package_share_directory("bitbots_lego_assembly"))
+        Path(get_package_share_directory("kinova_lego_assembly"))
         / "config"
         / "rviz"
         / "orchestrator.rviz"
@@ -111,7 +111,7 @@ def generate_launch_description() -> LaunchDescription:
     }
 
     moveit_config = (
-        MoveItConfigsBuilder("gen3", package_name="bitbots_lego_assembly")
+        MoveItConfigsBuilder("gen3", package_name="kinova_lego_assembly")
         .robot_description(file_path=str(description_xacro), mappings=xacro_mappings)
         .robot_description_semantic()
         .trajectory_execution()

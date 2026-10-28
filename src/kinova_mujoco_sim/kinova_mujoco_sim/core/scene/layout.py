@@ -48,7 +48,7 @@ ARM_MOUNT_PLATE_THICKNESS_Z: float = 0.025
 In the real cell the arm bases are raised off the table by this much, so the
 table plane lies 25 mm below ``base_link`` (see
 ``icp_pose_refinement.table_plane_z_base_frame_m`` in
-``bitbots_lego_assembly/config/params.yml``). Reproducing the same riser here
+``kinova_lego_assembly/config/params.yml``). Reproducing the same riser here
 keeps perception and planning geometry identical in sim and on hardware.
 """
 
@@ -82,7 +82,7 @@ HOLDER_YAW_DEG: float = 0.0
 WORK_ORIGIN: tuple[float, float, float] = (HOLDER_POS_XY[0], HOLDER_POS_XY[1], TABLE_TOP_Z)
 """Anchor scenes build around: the holder centre on the table top."""
 
-# --- Physics, matched to scripts/launch_duplo_viewer.py ---
+# --- Physics ---
 CONTACT_SOLREF: tuple[float, float] = (0.018, 1.0)
 """Stiffened contact solref so dropped bricks do not visibly sink on impact."""
 

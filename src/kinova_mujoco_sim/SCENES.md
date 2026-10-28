@@ -35,7 +35,7 @@ listing the registered scenes.
 | Scene                     | Content                                                                                                                                                                         |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `loose_pile` (default)    | A loose assortment of 2x2 / 4x2 bricks laid flat in front-left of the holder. The holder itself stays empty.                                                                    |
-| `loose_pile_holder_stack` | The `loose_pile` plus a holder stack: a 4x2 then a 2x2 dropped onto the holder studs, with a flush neighbour 4x2/2x2 stack alongside. Mirrors `scripts/launch_duplo_viewer.py`. |
+| `loose_pile_holder_stack` | The `loose_pile` plus a holder stack: a 4x2 then a 2x2 dropped onto the holder studs, with a flush neighbour 4x2/2x2 stack alongside. |
 
 ## How a scene fits together
 
@@ -134,9 +134,8 @@ collision obstacle. Change the pose by editing `layout.ARM2_QPOS`.
 
 ## Known limitations
 
-- The brick / holder builders are imported through a `sys.path` shim to the
-  repo-root `assets/mujoco` (matching `scripts/launch_duplo_viewer.py`). Proper
-  packaging is deferred work.
+- The brick / holder builders are imported through a `sys.path` shim to
+  `src/kinova_lego_assembly/assets/mujoco`. Proper packaging is deferred work.
 - Physics runs inside the `mujoco_ros2_control` plugin (the MuJoCo step loop is
   driven by the controller manager), not the passive viewer. Headless runs are
   supported (`show_gui:=false`); shut the simulation down with `Ctrl+C` in the

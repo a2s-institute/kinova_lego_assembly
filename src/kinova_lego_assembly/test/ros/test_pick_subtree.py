@@ -13,14 +13,14 @@ import pytest
 
 py_trees = pytest.importorskip("py_trees")
 behaviours = pytest.importorskip(
-    "bitbots_lego_assembly.ros.behaviours.behaviours",
-    reason="requires built ROS interfaces (bitbots_lego_assembly_interfaces)",
+    "kinova_lego_assembly.ros.behaviours.behaviours",
+    reason="requires built ROS interfaces (kinova_lego_assembly_interfaces)",
 )
-tree_mod = pytest.importorskip("bitbots_lego_assembly.ros.behaviours.tree")
-context_mod = pytest.importorskip("bitbots_lego_assembly.ros.behaviours.context")
+tree_mod = pytest.importorskip("kinova_lego_assembly.ros.behaviours.tree")
+context_mod = pytest.importorskip("kinova_lego_assembly.ros.behaviours.context")
 
-from bitbots_lego_assembly.core.blueprint import ModelStep
 from geometry_msgs.msg import PoseStamped
+from kinova_lego_assembly.core.blueprint import ModelStep
 from mir_interfaces.msg import Object, ObjectList
 
 
@@ -191,7 +191,7 @@ def test_pick_subtree_refines_before_generating_grasp(monkeypatch) -> None:
 
 
 def _run_grasp_search(monkeypatch, plannable_from_check: int | None):
-    grasp_mod = pytest.importorskip("bitbots_lego_assembly.ros.grasp")
+    grasp_mod = pytest.importorskip("kinova_lego_assembly.ros.grasp")
     candidates = tuple(
         grasp_mod.GraspPoseCandidate(rank, float(rank), 0.0, _pose(), _pose()) for rank in (0, 1)
     )
@@ -233,7 +233,7 @@ def test_grasp_search_shifts_group_in_x_after_full_failure(monkeypatch) -> None:
 
 
 def test_grasp_search_tries_ik_seed_before_x_shift(monkeypatch) -> None:
-    grasp_mod = pytest.importorskip("bitbots_lego_assembly.ros.grasp")
+    grasp_mod = pytest.importorskip("kinova_lego_assembly.ros.grasp")
     candidates = (grasp_mod.GraspPoseCandidate(0, 0.0, 0.0, _pose(), _pose()),)
     monkeypatch.setattr(
         behaviours,
@@ -289,7 +289,7 @@ def test_grasp_search_stops_after_max_shifts(monkeypatch) -> None:
 
 
 def test_shift_candidate_x_follows_grasp_frame() -> None:
-    grasp_mod = pytest.importorskip("bitbots_lego_assembly.ros.grasp")
+    grasp_mod = pytest.importorskip("kinova_lego_assembly.ros.grasp")
     grasp_pose = _pose()
     grasp_pose.pose.orientation.z = 2.0**-0.5
     grasp_pose.pose.orientation.w = 2.0**-0.5

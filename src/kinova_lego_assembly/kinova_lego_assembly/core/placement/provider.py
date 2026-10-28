@@ -13,7 +13,7 @@ from typing import Protocol, runtime_checkable
 
 from geometry_msgs.msg import PoseStamped
 
-from bitbots_lego_assembly.core.blueprint.utils import ModelStep
+from kinova_lego_assembly.core.blueprint.utils import ModelStep
 
 
 class PlacementError(RuntimeError):

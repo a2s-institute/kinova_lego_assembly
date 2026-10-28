@@ -1,7 +1,7 @@
 """ROS2 service node: thin wrapper around the core segmentation factory.
 
 Reads ROS parameters, hands them to
-:func:`bitbots_lego_assembly.core.segmentation.build_segmentor`, and
+:func:`kinova_lego_assembly.core.segmentation.build_segmentor`, and
 exposes the resulting backend via ``~/segment_image``. All
 backend-specific knowledge (knob names, defaults, build logic) lives in
 the pure-Python factory so this node stays generic.
@@ -16,24 +16,24 @@ from typing import Any
 import numpy as np
 import rclpy
 from ament_index_python.packages import PackageNotFoundError, get_package_share_directory
-from bitbots_lego_assembly_interfaces.msg import DetectedObject
-from bitbots_lego_assembly_interfaces.srv import SegmentImage
 from cv_bridge import CvBridge
 from geometry_msgs.msg import Point32
+from kinova_lego_assembly_interfaces.msg import DetectedObject
+from kinova_lego_assembly_interfaces.srv import SegmentImage
 from mir_interfaces.msg import Object, ObjectList
 from rcl_interfaces.msg import SetParametersResult
 from rclpy.node import Node
 from rclpy.qos import qos_profile_parameters, qos_profile_sensor_data
 from sensor_msgs.msg import Image
 
-from bitbots_lego_assembly.core.segmentation import (
+from kinova_lego_assembly.core.segmentation import (
     SegmentationModel,
     build_segmentor,
     get_spec,
     supported_methods,
 )
-from bitbots_lego_assembly.core.segmentation.visualization import render_overlay
-from bitbots_lego_assembly.core.types import LegoObject
+from kinova_lego_assembly.core.segmentation.visualization import render_overlay
+from kinova_lego_assembly.core.types import LegoObject
 
 
 def _ensure_models_root_env() -> None:
@@ -42,15 +42,15 @@ def _ensure_models_root_env() -> None:
     Keeps the core registry ROS-agnostic while still resolving model
     paths correctly once the package is installed via colcon.
     """
-    if os.environ.get("BITBOTS_LEGO_MODELS_ROOT"):
+    if os.environ.get("KINOVA_LEGO_MODELS_ROOT"):
         return
     try:
-        share = Path(get_package_share_directory("bitbots_lego_assembly"))
+        share = Path(get_package_share_directory("kinova_lego_assembly"))
     except PackageNotFoundError:
         return
     candidate = share / "trained_models"
     if candidate.is_dir():
-        os.environ["BITBOTS_LEGO_MODELS_ROOT"] = str(candidate)
+        os.environ["KINOVA_LEGO_MODELS_ROOT"] = str(candidate)
 
 
 class LegoSegmentationNode(Node):

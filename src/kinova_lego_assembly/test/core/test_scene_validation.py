@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from bitbots_lego_assembly.core.blueprint import ModelRecipe, ModelStep
-from bitbots_lego_assembly.core.scene_validation import count_detected, verify
+from kinova_lego_assembly.core.blueprint import ModelRecipe, ModelStep
+from kinova_lego_assembly.core.scene_validation import count_detected, verify
 
 
 def _recipe() -> ModelRecipe:

@@ -13,8 +13,8 @@ from time import monotonic, sleep
 from typing import NamedTuple
 
 from action_msgs.msg import GoalStatus
-from bitbots_lego_assembly_interfaces.srv import SegmentImage
 from geometry_msgs.msg import Point, Pose, PoseStamped
+from kinova_lego_assembly_interfaces.srv import SegmentImage
 from mir_interfaces.action import ObjectDetection
 from mir_interfaces.msg import ObjectList
 from moveit_msgs.action import MoveGroup
@@ -42,7 +42,7 @@ from shape_msgs.msg import SolidPrimitive
 from std_msgs.msg import ColorRGBA
 from visualization_msgs.msg import Marker
 
-from bitbots_lego_assembly.ros.background import SpinningNode
+from kinova_lego_assembly.ros.background import SpinningNode
 
 # Full z extent of the pose goal region (m). A zero-height box has no volume
 # for MoveIt's goal sampler, so keep a thin sliver instead.
@@ -200,7 +200,7 @@ class SegmentImageClient:
 
         Returns
         -------
-        bitbots_lego_assembly_interfaces.srv.SegmentImage.Response or None
+        kinova_lego_assembly_interfaces.srv.SegmentImage.Response or None
             The response, or ``None`` on service unavailability or timeout.
         """
         if not self._client.wait_for_service(timeout_sec=3.0):

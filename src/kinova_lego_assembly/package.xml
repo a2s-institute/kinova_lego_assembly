@@ -2,11 +2,11 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
 
-  <name>bitbots_lego_assembly</name>
+  <name>kinova_lego_assembly</name>
   <version>0.0.0</version>
   <description>TODO</description>
 
-  <maintainer email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</author>
+  <maintainer email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</maintainer>
   <author email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</author>
   <author email="jay.patil@smail.inf.h-brs.de">Jay Patil</author>
   <author email="suhail.rafi@smail.inf.h-brs.de">Suhail Rafi</author>
@@ -30,7 +30,7 @@
   <depend>moveit_ros_move_group</depend>
   <depend>rviz2</depend>
   <depend>xacro</depend>
-  <depend>bitbots_lego_assembly_interfaces</depend>
+  <depend>kinova_lego_assembly_interfaces</depend>
   <depend>mir_interfaces</depend>
   <depend>kinova_mujoco_sim</depend>
   <depend>std_msgs</depend>

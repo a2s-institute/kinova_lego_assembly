@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Command-line schema validator for ``assets/lego_blueprints.yaml``.
+"""Command-line schema validator for ``src/kinova_lego_assembly/assets/lego_blueprints.yaml``.
 
 The validation logic lives in
-``bitbots_lego_assembly.core.blueprint.lint`` (pure business logic, no
+``kinova_lego_assembly.core.blueprint.lint`` (pure business logic, no
 ROS). This script is a thin CLI wrapper so the same rules run in CI and
 inside the task orchestrator's boot health check.
 
@@ -31,15 +31,13 @@ import yaml
 
 # Make the in-tree Python package importable when running from a source
 # checkout (before the package is installed via colcon).
-_PACKAGE_SRC = Path(__file__).resolve().parent.parent / "src" / "bitbots_lego_assembly"
+_PACKAGE_SRC = Path(__file__).resolve().parent.parent / "src" / "kinova_lego_assembly"
 if str(_PACKAGE_SRC) not in sys.path:
     sys.path.insert(0, str(_PACKAGE_SRC))
 
-from bitbots_lego_assembly.core.blueprint.lint import lint_blueprints  # noqa: E402
+from kinova_lego_assembly.core.blueprint.lint import lint_blueprints  # noqa: E402
 
-DEFAULT_BLUEPRINTS_PATH: Path = (
-    Path(__file__).resolve().parent.parent / "assets" / "lego_blueprints.yaml"
-)
+DEFAULT_BLUEPRINTS_PATH: Path = _PACKAGE_SRC / "assets" / "lego_blueprints.yaml"
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -6,7 +6,7 @@ import textwrap
 from pathlib import Path
 
 import pytest
-from bitbots_lego_assembly.core.blueprint import BlueprintError, BlueprintUtils
+from kinova_lego_assembly.core.blueprint import BlueprintError, BlueprintUtils
 
 _VALID = textwrap.dedent(
     """

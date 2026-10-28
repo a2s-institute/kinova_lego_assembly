@@ -14,21 +14,21 @@ from rclpy.node import Node
 from rclpy.publisher import Publisher
 from tf2_ros import Buffer
 
-from bitbots_lego_assembly.core.blueprint import BlueprintUtils
-from bitbots_lego_assembly.ros.background import SpinningNode
-from bitbots_lego_assembly.ros.clients import (
+from kinova_lego_assembly.core.blueprint import BlueprintUtils
+from kinova_lego_assembly.ros.background import SpinningNode
+from kinova_lego_assembly.ros.clients import (
     ComputeFkClient,
     MoveActionClient,
     ObjectDetectionClient,
     ObjectListReader,
     SegmentImageClient,
 )
-from bitbots_lego_assembly.ros.gripper import GripperController
-from bitbots_lego_assembly.ros.icp_pose_refiner import (
+from kinova_lego_assembly.ros.gripper import GripperController
+from kinova_lego_assembly.ros.icp_pose_refiner import (
     IcpPoseRefiner,
     IcpRefinementParams,
 )
-from bitbots_lego_assembly.ros.sensor_data_manager import SensorDataManager
+from kinova_lego_assembly.ros.sensor_data_manager import SensorDataManager
 
 
 @dataclass

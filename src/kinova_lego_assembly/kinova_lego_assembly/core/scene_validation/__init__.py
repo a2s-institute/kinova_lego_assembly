@@ -1,6 +1,6 @@
 """Scene sufficiency validation (ROS-independent)."""
 
-from bitbots_lego_assembly.core.scene_validation.validator import (
+from kinova_lego_assembly.core.scene_validation.validator import (
     ValidationReport,
     count_detected,
     verify,

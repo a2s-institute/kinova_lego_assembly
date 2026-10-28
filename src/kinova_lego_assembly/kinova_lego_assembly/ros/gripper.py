@@ -18,7 +18,7 @@ from __future__ import annotations
 from control_msgs.action import GripperCommand
 from rclpy.action import ActionClient
 
-from bitbots_lego_assembly.ros.background import SpinningNode
+from kinova_lego_assembly.ros.background import SpinningNode
 
 
 class GripperController:

@@ -17,9 +17,9 @@ import torch
 import yaml
 from ultralytics import YOLO
 
-from bitbots_lego_assembly.core.segmentation import registry
-from bitbots_lego_assembly.core.segmentation.base import SegmentationModel
-from bitbots_lego_assembly.core.types import LegoObject, SegmentationResult
+from kinova_lego_assembly.core.segmentation import registry
+from kinova_lego_assembly.core.segmentation.base import SegmentationModel
+from kinova_lego_assembly.core.types import LegoObject, SegmentationResult
 
 
 class YOLOSegmentor(SegmentationModel):

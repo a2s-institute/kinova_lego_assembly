@@ -1,6 +1,6 @@
 # Run instance segmentation on the supplied image.
 sensor_msgs/Image image
 ---
-bitbots_lego_assembly_interfaces/DetectedObject[] detections
+kinova_lego_assembly_interfaces/DetectedObject[] detections
 # Full id -> name table the model knows (index = class_id).
 string[] class_names

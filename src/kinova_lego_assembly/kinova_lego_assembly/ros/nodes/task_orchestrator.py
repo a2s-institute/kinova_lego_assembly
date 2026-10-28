@@ -24,9 +24,9 @@ import py_trees
 import py_trees_ros
 import rclpy
 from ament_index_python.packages import PackageNotFoundError, get_package_share_directory
-from bitbots_lego_assembly_interfaces.action import AssembleModel
-from bitbots_lego_assembly_interfaces.msg import AssemblyStatus
-from bitbots_lego_assembly_interfaces.srv import ClearPlacementRecord
+from kinova_lego_assembly_interfaces.action import AssembleModel
+from kinova_lego_assembly_interfaces.msg import AssemblyStatus
+from kinova_lego_assembly_interfaces.srv import ClearPlacementRecord
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.callback_groups import MutuallyExclusiveCallbackGroup, ReentrantCallbackGroup
 from rclpy.exceptions import InvalidHandle
@@ -38,25 +38,25 @@ from rclpy.wait_for_message import wait_for_message
 from sensor_msgs.msg import Image, JointState, PointCloud2
 from tf2_ros import Buffer, TransformListener
 
-from bitbots_lego_assembly.core.blueprint import BlueprintError, BlueprintUtils
-from bitbots_lego_assembly.core.orchestration import Phase
-from bitbots_lego_assembly.ros.background import SpinningNode
-from bitbots_lego_assembly.ros.behaviours import OrchestratorContext, OrchestratorParams, build_tree
-from bitbots_lego_assembly.ros.clients import (
+from kinova_lego_assembly.core.blueprint import BlueprintError, BlueprintUtils
+from kinova_lego_assembly.core.orchestration import Phase
+from kinova_lego_assembly.ros.background import SpinningNode
+from kinova_lego_assembly.ros.behaviours import OrchestratorContext, OrchestratorParams, build_tree
+from kinova_lego_assembly.ros.clients import (
     ComputeFkClient,
     MoveActionClient,
     ObjectDetectionClient,
     ObjectListReader,
     SegmentImageClient,
 )
-from bitbots_lego_assembly.ros.gripper import GripperController
-from bitbots_lego_assembly.ros.icp_pose_refiner import (
+from kinova_lego_assembly.ros.gripper import GripperController
+from kinova_lego_assembly.ros.icp_pose_refiner import (
     IcpPoseRefiner,
     IcpRefinementParams,
 )
-from bitbots_lego_assembly.ros.pick_pose_broadcaster import PickPoseBroadcaster
-from bitbots_lego_assembly.ros.sensor_data_manager import SensorDataManager
-from bitbots_lego_assembly.ros.static_transforms import broadcast_static_transforms
+from kinova_lego_assembly.ros.pick_pose_broadcaster import PickPoseBroadcaster
+from kinova_lego_assembly.ros.sensor_data_manager import SensorDataManager
+from kinova_lego_assembly.ros.static_transforms import broadcast_static_transforms
 
 
 def _as_xyz(value: object) -> tuple[float, float, float]:
@@ -415,7 +415,7 @@ class TaskOrchestratorNode(Node):
         if override:
             return Path(override)
         try:
-            share = Path(get_package_share_directory("bitbots_lego_assembly"))
+            share = Path(get_package_share_directory("kinova_lego_assembly"))
             return share / "assets" / "lego_blueprints.yaml"
         except PackageNotFoundError:
             return Path("assets/lego_blueprints.yaml")

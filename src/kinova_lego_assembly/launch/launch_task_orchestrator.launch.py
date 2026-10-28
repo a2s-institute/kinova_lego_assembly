@@ -26,7 +26,7 @@ requested. It also drives deactivate -> cleanup on launch shutdown. No
 transition-timing guesswork.
 
 Usage:
-    ros2 launch bitbots_lego_assembly launch_task_orchestrator.launch.py
+    ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py
 """
 
 from __future__ import annotations
@@ -86,7 +86,7 @@ def generate_launch_description() -> LaunchDescription:
     perception_params_arg = DeclareLaunchArgument(
         "perception_params_file",
         default_value=str(
-            Path(get_package_share_directory("bitbots_lego_assembly")) / "config" / "params.yml"
+            Path(get_package_share_directory("kinova_lego_assembly")) / "config" / "params.yml"
         ),
         description=(
             "Path to the shared perception parameter file (camera, segmentation "
@@ -107,7 +107,7 @@ def generate_launch_description() -> LaunchDescription:
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
-                    FindPackageShare("bitbots_lego_assembly"),
+                    FindPackageShare("kinova_lego_assembly"),
                     "launch",
                     "launch_sim_moveit.launch.py",
                 ]
@@ -125,7 +125,7 @@ def generate_launch_description() -> LaunchDescription:
 
     # Single RViz for the orchestrated task view.
     orchestrator_rviz_config = str(
-        Path(get_package_share_directory("bitbots_lego_assembly"))
+        Path(get_package_share_directory("kinova_lego_assembly"))
         / "config"
         / "rviz"
         / "orchestrator.rviz"
@@ -166,7 +166,7 @@ def generate_launch_description() -> LaunchDescription:
         "init_gripper": "0.0",
     }
     moveit_config = (
-        MoveItConfigsBuilder("gen3", package_name="bitbots_lego_assembly")
+        MoveItConfigsBuilder("gen3", package_name="kinova_lego_assembly")
         .robot_description(file_path=str(description_xacro), mappings=xacro_mappings)
         .robot_description_semantic()
         .trajectory_execution()
@@ -223,7 +223,7 @@ def generate_launch_description() -> LaunchDescription:
 
     # 2. Segmentation service node (exposes /LegoSegmentation/segment_image).
     segmentation_node = Node(
-        package="bitbots_lego_assembly",
+        package="kinova_lego_assembly",
         executable="lego_segmentation_node",
         name="LegoSegmentation",
         output="screen",
@@ -261,7 +261,7 @@ def generate_launch_description() -> LaunchDescription:
         period=LaunchConfiguration("mmor_bringup_delay_s"),
         actions=[
             Node(
-                package="bitbots_lego_assembly",
+                package="kinova_lego_assembly",
                 executable="lifecycle_manager_node",
                 name="mmor_lifecycle_manager",
                 output="screen",
@@ -288,17 +288,17 @@ def generate_launch_description() -> LaunchDescription:
         ),
     }
     static_transforms_file = str(
-        Path(get_package_share_directory("bitbots_lego_assembly"))
+        Path(get_package_share_directory("kinova_lego_assembly"))
         / "config"
         / "static_transforms.yaml"
     )
     motion_planning_params_file = str(
-        Path(get_package_share_directory("bitbots_lego_assembly")) / "config" / "params.yml"
+        Path(get_package_share_directory("kinova_lego_assembly")) / "config" / "params.yml"
     )
     # Publishes the static keep-out cuboids (obstacle arm, table) into MoveIt's
     # planning scene and, from the same params, matching RViz cube markers.
     planning_scene_obstacle_node = Node(
-        package="bitbots_lego_assembly",
+        package="kinova_lego_assembly",
         executable="planning_scene_obstacle_publisher_node",
         name="planning_scene_obstacle_publisher",
         output="screen",
@@ -320,7 +320,7 @@ def generate_launch_description() -> LaunchDescription:
     # duplicate snapshot-stream services under one namespace). The node already
     # names itself "task_orchestrator" in code, so this remap is redundant anyway.
     orchestrator_node = Node(
-        package="bitbots_lego_assembly",
+        package="kinova_lego_assembly",
         executable="task_orchestrator_node",
         output="screen",
         parameters=[

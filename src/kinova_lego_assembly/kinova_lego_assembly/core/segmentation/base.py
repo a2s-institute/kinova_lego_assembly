@@ -7,7 +7,7 @@ from typing import Any
 
 import numpy as np
 
-from bitbots_lego_assembly.core.types import SegmentationResult
+from kinova_lego_assembly.core.types import SegmentationResult
 
 
 class SegmentationModel(ABC):

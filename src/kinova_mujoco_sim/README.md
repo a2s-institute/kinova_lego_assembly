@@ -31,7 +31,7 @@ is published for downstream motion planning / MoveIt.
 - ROS deps via rosdep (from the workspace root):
 
   ```bash
-  rosdep install --from-paths src/bitbots_lego_assembly/src/kinova_mujoco_sim --ignore-src -y
+  rosdep install --from-paths src/kinova_lego_assembly/src/kinova_mujoco_sim --ignore-src -y
   ```
 
   `kortex_description` and `robotiq_description` are pulled from the system
@@ -52,7 +52,7 @@ git clone git@github.com:dfki-ric/mujoco_ros2_control.git src/mujoco_ros2_contro
 git -C src/mujoco_ros2_control checkout 82b602b
 
 # 2. Apply the vendored patch (idempotent)
-src/bitbots_lego_assembly/src/kinova_mujoco_sim/patches/apply.sh
+src/kinova_lego_assembly/src/kinova_mujoco_sim/patches/apply.sh
 
 # 3. Resolve ROS dependencies for everything in the workspace. The patch from
 #    step 2 marks mujoco_ros2_control_examples as ignored, so its extra deps
@@ -61,7 +61,7 @@ rosdep install --from-paths src --ignore-src -y
 
 # 4. Install the Python requirements into the interpreter that will run the build
 #    and the scene generator (activate your venv first, or use a user-site install).
-python3 -m pip install -r src/bitbots_lego_assembly/src/kinova_mujoco_sim/requirements.txt
+python3 -m pip install -r src/kinova_lego_assembly/src/kinova_mujoco_sim/requirements.txt
 
 # 5. Build kinova_mujoco_sim and its dependencies (incl. mujoco_ros2_control).
 #    Invoke colcon via `python3 -m colcon` so it runs under the same interpreter

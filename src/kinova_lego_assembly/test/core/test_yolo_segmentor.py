@@ -14,13 +14,13 @@ from pathlib import Path
 
 import numpy as np
 import pytest
-from bitbots_lego_assembly.core.segmentation import (
+from kinova_lego_assembly.core.segmentation import (
     YOLOSegmentor,
     build_segmentor,
     registry,
     supported_methods,
 )
-from bitbots_lego_assembly.core.types import LegoObject, SegmentationResult
+from kinova_lego_assembly.core.types import LegoObject, SegmentationResult
 
 
 def _model_available() -> bool:

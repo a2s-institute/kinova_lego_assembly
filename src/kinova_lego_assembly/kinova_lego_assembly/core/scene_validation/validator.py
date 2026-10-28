@@ -13,7 +13,7 @@ from collections import Counter
 from collections.abc import Iterable
 from dataclasses import dataclass, field
 
-from bitbots_lego_assembly.core.blueprint.utils import BlueprintUtils, ModelRecipe
+from kinova_lego_assembly.core.blueprint.utils import BlueprintUtils, ModelRecipe
 
 
 @dataclass(frozen=True)

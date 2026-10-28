@@ -18,18 +18,18 @@ from time import monotonic
 
 import py_trees
 import rclpy
-from bitbots_lego_assembly_interfaces.msg import AssemblyStatus
 from geometry_msgs.msg import PoseStamped
+from kinova_lego_assembly_interfaces.msg import AssemblyStatus
 from rclpy.exceptions import InvalidHandle
 
-from bitbots_lego_assembly.core.blueprint import ModelStep
-from bitbots_lego_assembly.core.orchestration import Phase
-from bitbots_lego_assembly.core.placement import PlacementError
-from bitbots_lego_assembly.core.scene_validation import count_detected, verify
-from bitbots_lego_assembly.ros.behaviours.context import OrchestratorContext
-from bitbots_lego_assembly.ros.clients import DEFAULT_GOAL_TOLERANCE, GoalTolerance, MotionPlanner
-from bitbots_lego_assembly.ros.grasp import compute_grasp_pregrasp_candidates, shift_candidate_x
-from bitbots_lego_assembly.ros.placement import (
+from kinova_lego_assembly.core.blueprint import ModelStep
+from kinova_lego_assembly.core.orchestration import Phase
+from kinova_lego_assembly.core.placement import PlacementError
+from kinova_lego_assembly.core.scene_validation import count_detected, verify
+from kinova_lego_assembly.ros.behaviours.context import OrchestratorContext
+from kinova_lego_assembly.ros.clients import DEFAULT_GOAL_TOLERANCE, GoalTolerance, MotionPlanner
+from kinova_lego_assembly.ros.grasp import compute_grasp_pregrasp_candidates, shift_candidate_x
+from kinova_lego_assembly.ros.placement import (
     FkPlacementProvider,
     PlacementRecord,
     PlaceSlot,

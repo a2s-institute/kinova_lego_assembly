@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 import pytest
-from bitbots_lego_assembly.core.icp import (
+from kinova_lego_assembly.core.icp import (
     BRICK_HALF_HEIGHT_M,
     BrickModel,
     crop_observed_brick,

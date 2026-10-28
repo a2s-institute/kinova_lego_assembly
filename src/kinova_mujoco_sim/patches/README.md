@@ -76,7 +76,7 @@ Use the helper script (idempotent; resolves the target repo relative to the
 workspace, or pass it explicitly):
 
 ```bash
-src/bitbots_lego_assembly/src/kinova_mujoco_sim/patches/apply.sh
+src/kinova_lego_assembly/src/kinova_mujoco_sim/patches/apply.sh
 # or: apply.sh /path/to/src/mujoco_ros2_control
 ```
 
@@ -84,7 +84,7 @@ Equivalent manual apply:
 
 ```bash
 cd src/mujoco_ros2_control
-git apply ../bitbots_lego_assembly/src/kinova_mujoco_sim/patches/mujoco_ros2_control.patch
+git apply ../kinova_lego_assembly/src/kinova_mujoco_sim/patches/mujoco_ros2_control.patch
 ```
 
 (Adjust the relative path to wherever `kinova_mujoco_sim` is checked out.)
@@ -110,6 +110,6 @@ examples ignore markers) as intent-to-add so `git diff` includes them:
 ```bash
 cd src/mujoco_ros2_control
 git add -N mujoco_ros2_control_examples/COLCON_IGNORE mujoco_ros2_control_examples/AMENT_IGNORE
-git diff > ../bitbots_lego_assembly/src/kinova_mujoco_sim/patches/mujoco_ros2_control.patch
+git diff > ../kinova_lego_assembly/src/kinova_mujoco_sim/patches/mujoco_ros2_control.patch
 git reset -q
 ```

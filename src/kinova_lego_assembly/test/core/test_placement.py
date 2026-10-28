@@ -6,16 +6,16 @@ import copy
 from types import SimpleNamespace
 
 import pytest
-from bitbots_lego_assembly.core.blueprint import ModelStep
-from bitbots_lego_assembly.core.placement import PlacementError
-from bitbots_lego_assembly.ros.placement import (
+from geometry_msgs.msg import PoseStamped
+from kinova_lego_assembly.core.blueprint import ModelStep
+from kinova_lego_assembly.core.placement import PlacementError
+from kinova_lego_assembly.ros.placement import (
     BRICK_HALF_WIDTH_Z,
     PREPLACE_OFFSET_Z,
     PRIOR_POSE_OFFSET_Z,
     FkPlacementProvider,
     PlacementRecord,
 )
-from geometry_msgs.msg import PoseStamped
 
 
 def _pose(x: float, y: float, z: float) -> PoseStamped:

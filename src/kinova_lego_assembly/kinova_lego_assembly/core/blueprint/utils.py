@@ -2,7 +2,7 @@
 
 Pure business logic (no ROS). Loads ``assets/lego_blueprints.yaml``,
 validates it against the schema in ``docs/adr/0009-blueprint-schema.md``
-via :mod:`bitbots_lego_assembly.core.blueprint.lint`, and exposes lookup
+via :mod:`kinova_lego_assembly.core.blueprint.lint`, and exposes lookup
 helpers the orchestrator uses at runtime.
 
 Each catalog block gets a synthesized ``name`` of the form
@@ -18,7 +18,7 @@ from typing import Any
 
 import yaml
 
-from bitbots_lego_assembly.core.blueprint.lint import LintError, lint_blueprints
+from kinova_lego_assembly.core.blueprint.lint import LintError, lint_blueprints
 
 
 class BlueprintError(ValueError):

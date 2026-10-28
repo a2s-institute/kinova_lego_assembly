@@ -12,10 +12,9 @@ MJCF generator writes an initial keyframe that sets the obstacle joints (and
 their stiff position actuators' ``ctrl``) to ``layout.ARM2_QPOS``, so the arm
 holds that static configuration as a passive obstacle.
 
-The lego brick / holder builders live at the repository root under
-``assets/mujoco``. They are imported through a ``sys.path`` shim (matching
-``scripts/launch_duplo_viewer.py``); replacing this with proper packaging is
-tracked as deferred work.
+The lego brick / holder builders live in the ``kinova_lego_assembly`` source
+package under ``assets/mujoco``. They are imported through a ``sys.path``
+shim; replacing this with proper packaging is tracked as deferred work.
 """
 
 from __future__ import annotations
@@ -28,11 +27,11 @@ import mujoco
 
 from kinova_mujoco_sim.core.scene import layout
 
-# Make ``assets.mujoco`` importable from the repository root. From this file,
-# parents[5] is the ``bitbots_lego_assembly`` repo dir that contains assets/.
-_REPO_ROOT = Path(__file__).resolve().parents[5]
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
+# Make ``assets.mujoco`` importable from the sibling ``kinova_lego_assembly``
+# source package. From this file, parents[4] is the repo's ``src/`` dir.
+_LEGO_PKG_ROOT = Path(__file__).resolve().parents[4] / "kinova_lego_assembly"
+if str(_LEGO_PKG_ROOT) not in sys.path:
+    sys.path.insert(0, str(_LEGO_PKG_ROOT))
 
 from assets.mujoco.lego_holder import (  # noqa: E402
     REST_HEIGHT_M,

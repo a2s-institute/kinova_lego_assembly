@@ -1,6 +1,6 @@
 """Placement provider interface (ROS-independent)."""
 
-from bitbots_lego_assembly.core.placement.provider import (
+from kinova_lego_assembly.core.placement.provider import (
     PlacementError,
     PlacementProvider,
     PlacementRecord,

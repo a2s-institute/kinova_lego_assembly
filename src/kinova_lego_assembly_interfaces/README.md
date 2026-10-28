@@ -1,3 +1,3 @@
-# bitbots_lego_assembly_interfaces
+# kinova_lego_assembly_interfaces
 
-ROS interface definitions for bitbots_lego_assembly
+ROS interface definitions for kinova_lego_assembly

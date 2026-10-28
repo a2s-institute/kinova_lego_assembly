@@ -1,4 +1,4 @@
-"""bitbots_lego_assembly package init.
+"""kinova_lego_assembly package init.
 
 Sets process-wide environment defaults that must be in place before any
 third-party dependency (notably Ultralytics) imports. ``os.environ.setdefault``

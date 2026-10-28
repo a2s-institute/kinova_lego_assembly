@@ -11,9 +11,9 @@ from __future__ import annotations
 
 import py_trees
 
-from bitbots_lego_assembly.core.blueprint import ModelRecipe, ModelStep
-from bitbots_lego_assembly.core.orchestration import Phase
-from bitbots_lego_assembly.ros.behaviours.behaviours import (
+from kinova_lego_assembly.core.blueprint import ModelRecipe, ModelStep
+from kinova_lego_assembly.core.orchestration import Phase
+from kinova_lego_assembly.ros.behaviours.behaviours import (
     BrickAlreadyPlaced,
     CaptureImage,
     ComputePlacePoses,
@@ -29,8 +29,8 @@ from bitbots_lego_assembly.ros.behaviours.behaviours import (
     ValidateScene,
     WaitForArmSettled,
 )
-from bitbots_lego_assembly.ros.behaviours.context import OrchestratorContext
-from bitbots_lego_assembly.ros.clients import GoalTolerance, MotionPlanner
+from kinova_lego_assembly.ros.behaviours.context import OrchestratorContext
+from kinova_lego_assembly.ros.clients import GoalTolerance, MotionPlanner
 
 PILZ_PTP = MotionPlanner("pilz_industrial_motion_planner", "PTP")
 PILZ_LIN = MotionPlanner("pilz_industrial_motion_planner", "LIN")

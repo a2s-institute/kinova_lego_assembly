@@ -22,7 +22,7 @@ def generate_launch_description():  # noqa: D103
         DeclareLaunchArgument(
             "params",
             default_value=str(
-                Path(get_package_share_directory("bitbots_lego_assembly")) / "config" / "params.yml"
+                Path(get_package_share_directory("kinova_lego_assembly")) / "config" / "params.yml"
             ),
             description="path to parameter file",
         ),
@@ -39,7 +39,7 @@ def generate_launch_description():  # noqa: D103
 
     nodes = [
         Node(
-            package="bitbots_lego_assembly",
+            package="kinova_lego_assembly",
             executable="lego_segmentation_node",
             namespace=LaunchConfiguration("namespace"),
             name=LaunchConfiguration("name"),

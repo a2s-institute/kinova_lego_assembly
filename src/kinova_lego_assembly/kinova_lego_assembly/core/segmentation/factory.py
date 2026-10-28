@@ -12,8 +12,8 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Any
 
-from bitbots_lego_assembly.core.segmentation.base import SegmentationModel
-from bitbots_lego_assembly.core.segmentation.yolo_segmentor import YOLOSegmentor
+from kinova_lego_assembly.core.segmentation.base import SegmentationModel
+from kinova_lego_assembly.core.segmentation.yolo_segmentor import YOLOSegmentor
 
 
 @dataclass(frozen=True)

@@ -1,11 +1,11 @@
-"""Setuptools entry point for the bitbots_lego_assembly ROS2 package."""
+"""Setuptools entry point for the kinova_lego_assembly ROS2 package."""
 
 from glob import glob
 from pathlib import Path
 
 from setuptools import find_packages, setup
 
-package_name = "bitbots_lego_assembly"
+package_name = "kinova_lego_assembly"
 
 
 def _read_requirements() -> list[str]:
@@ -41,12 +41,8 @@ def _config_data_files() -> list[tuple[str, list[str]]]:
 
 
 def _asset_data_files() -> list[tuple[str, list[str]]]:
-    """Install shared blueprints and mesh assets under the package share.
-
-    Assets live two levels above the ament package root. Colcon requires
-    ``data_files`` sources to be relative, so preserve those relative paths.
-    """
-    asset_root = Path("..") / ".." / "assets"
+    """Install shared blueprints and mesh assets under the package share."""
+    asset_root = Path("assets")
     entries: list[tuple[str, list[str]]] = []
     blueprint = asset_root / "lego_blueprints.yaml"
     if (Path(__file__).resolve().parent / blueprint).is_file():
@@ -79,7 +75,7 @@ setup(
     packages=find_packages(exclude=["test", "test.*"]),
     data_files=[
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
-        (str(Path("share", package_name)), ["package.xml", ".setup_assistant"]),
+        (str(Path("share", package_name)), ["package.xml"]),
         (
             str(Path("share", package_name, "launch")),
             glob("launch/*.launch.py"),
@@ -92,17 +88,17 @@ setup(
     zip_safe=True,
     maintainer="root",
     maintainer_email="root@todo.todo",
-    description="LEGO assembly perception and control nodes for the bitbots stack.",
+    description="LEGO assembly perception and control nodes for the Kinova Gen3.",
     license="TODO: License declaration",
     tests_require=["pytest"],
     entry_points={
         "console_scripts": [
-            ("lego_segmentation_node = bitbots_lego_assembly.ros.nodes.lego_segmentation:main"),
-            ("task_orchestrator_node = bitbots_lego_assembly.ros.nodes.task_orchestrator:main"),
-            ("lifecycle_manager_node = bitbots_lego_assembly.ros.nodes.lifecycle_manager:main"),
+            ("lego_segmentation_node = kinova_lego_assembly.ros.nodes.lego_segmentation:main"),
+            ("task_orchestrator_node = kinova_lego_assembly.ros.nodes.task_orchestrator:main"),
+            ("lifecycle_manager_node = kinova_lego_assembly.ros.nodes.lifecycle_manager:main"),
             (
                 "planning_scene_obstacle_publisher_node = "
-                "bitbots_lego_assembly.ros.nodes.planning_scene_obstacle_publisher:main"
+                "kinova_lego_assembly.ros.nodes.planning_scene_obstacle_publisher:main"
             ),
         ],
     },

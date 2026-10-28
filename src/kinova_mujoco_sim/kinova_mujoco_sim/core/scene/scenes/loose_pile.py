@@ -16,9 +16,9 @@ from kinova_mujoco_sim.core.scene.scenes.base import register
 from kinova_mujoco_sim.core.scene.stage import StageContext
 from kinova_mujoco_sim.core.utils.transforms import yaw_quat
 
-_REPO_ROOT = Path(__file__).resolve().parents[6]
-if str(_REPO_ROOT) not in sys.path:
-    sys.path.insert(0, str(_REPO_ROOT))
+_LEGO_PKG_ROOT = Path(__file__).resolve().parents[5] / "kinova_lego_assembly"
+if str(_LEGO_PKG_ROOT) not in sys.path:
+    sys.path.insert(0, str(_LEGO_PKG_ROOT))
 
 # Brick half-height is a property of the brick mesh, owned by the asset module.
 from assets.mujoco.duplo_brick import (  # noqa: E402

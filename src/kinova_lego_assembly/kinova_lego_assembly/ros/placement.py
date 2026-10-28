@@ -21,8 +21,8 @@ from dataclasses import dataclass
 
 from geometry_msgs.msg import PoseStamped
 
-from bitbots_lego_assembly.core.blueprint import ModelStep
-from bitbots_lego_assembly.core.placement import PlacementError
+from kinova_lego_assembly.core.blueprint import ModelStep
+from kinova_lego_assembly.core.placement import PlacementError
 
 
 @dataclass(frozen=True)

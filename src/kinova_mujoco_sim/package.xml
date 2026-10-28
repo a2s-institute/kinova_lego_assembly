@@ -8,7 +8,7 @@
     Ships its own MuJoCo XML models and STL meshes for a fully standalone simulator.
   </description>
 
-  <maintainer email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</author>
+  <maintainer email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</maintainer>
   <author email="scotrraaj.gopal@smail.inf.h-brs.de">Scotrraaj Gopal</author>
   <author email="jay.patil@smail.inf.h-brs.de">Jay Patil</author>
   <author email="suhail.rafi@smail.inf.h-brs.de">Suhail Rafi</author>

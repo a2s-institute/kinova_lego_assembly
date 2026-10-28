@@ -1,4 +1,4 @@
-# bitbots_lego_assembly
+# kinova_lego_assembly
 
 ROS 2 (Humble) package providing LEGO perception and assembly nodes. Its
 segmentation service wraps a pure-Python
@@ -6,13 +6,13 @@ segmentation service wraps a pure-Python
 `~/segment_image`; its task orchestrator coordinates perception and motion
 planning to assemble a LEGO model.
 The service uses
-[`SegmentImage.srv`](../bitbots_lego_assembly_interfaces/srv/SegmentImage.srv).
+[`SegmentImage.srv`](../kinova_lego_assembly_interfaces/srv/SegmentImage.srv).
 
 The implementation keeps a clear split between ROS and core logic:
 
-- [`bitbots_lego_assembly/core/`](bitbots_lego_assembly/core) holds the
+- [`kinova_lego_assembly/core/`](kinova_lego_assembly/core) holds the
   ROS-free Python (segmentation backends, dataclasses, model registry).
-- [`bitbots_lego_assembly/ros/`](bitbots_lego_assembly/ros) holds the ROS 2
+- [`kinova_lego_assembly/ros/`](kinova_lego_assembly/ros) holds the ROS 2
   nodes, including segmentation and task orchestration.
 
 ## Prerequisites
@@ -27,16 +27,16 @@ The implementation keeps a clear split between ROS and core logic:
 
 Activate your virtual environment before installing Python dependencies.
 Run the pip and `rosdep` commands below from the workspace root; run pytest
-from the package repository root (`src/bitbots_lego_assembly` inside the
+from the package repository root (`src/kinova_lego_assembly` inside the
 workspace). `colcon` and `ros2` commands run from the workspace root.
 
 Install the package's Python runtime dependencies from the workspace root:
 
 ```bash
 # from the workspace root
-python3 -m pip install -r src/bitbots_lego_assembly/requirements.txt
+python3 -m pip install -r src/kinova_lego_assembly/requirements.txt
 # optional: install test and lint tools
-python3 -m pip install -r src/bitbots_lego_assembly/requirements.dev.txt
+python3 -m pip install -r src/kinova_lego_assembly/requirements.dev.txt
 ```
 
 The root README's workspace setup clones `mas_industrial_robotics`, which
@@ -47,7 +47,7 @@ from the workspace root:
 ```bash
 # from the workspace root
 rosdep install \
-  --from-paths src/bitbots_lego_assembly/src src/mas_industrial_robotics \
+  --from-paths src/kinova_lego_assembly/src src/mas_industrial_robotics \
   --ignore-src -y
 ```
 
@@ -72,7 +72,7 @@ Build the interface, MIR interface, and application packages for segmentation
 
 ```bash
 python3 -m colcon build --packages-up-to \
-  bitbots_lego_assembly_interfaces mir_interfaces bitbots_lego_assembly
+  kinova_lego_assembly_interfaces mir_interfaces kinova_lego_assembly
 source install/setup.bash
 ```
 
@@ -85,7 +85,7 @@ provides `~/segment_image`. Run it from the workspace root with the workspace
 sourced:
 
 ```bash
-ros2 launch bitbots_lego_assembly launch_bitbots_lego_assembly.launch.py
+ros2 launch kinova_lego_assembly launch_kinova_lego_assembly.launch.py
 ```
 
 Tune segmentation inference parameters through ROS parameters (see
@@ -117,14 +117,14 @@ by following the **Build** instructions in the
 orchestrator and its in-workspace dependencies (from the workspace root):
 
 ```bash
-colcon build --packages-up-to bitbots_lego_assembly
+colcon build --packages-up-to kinova_lego_assembly
 source install/setup.bash
 ```
 
 To launch the MuJoCo simulator and MoveIt together with the assembly pipeline:
 
 ```bash
-ros2 launch bitbots_lego_assembly launch_task_orchestrator.launch.py \
+ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py \
   sim_mode:=true use_sim_time:=true
 ```
 
@@ -132,7 +132,7 @@ For real-robot operation, run the same launch with the default
 `sim_mode:=false`, while the robot and MoveIt stack are running externally:
 
 ```bash
-ros2 launch bitbots_lego_assembly launch_task_orchestrator.launch.py
+ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py
 ```
 
 ## Tests
@@ -143,23 +143,23 @@ Tests are split between pure-Python (`test/core/`) and ROS-dependent
 List everything [pytest](https://docs.pytest.org/) would collect (no execution):
 
 ```bash
-# from src/bitbots_lego_assembly
+# from src/kinova_lego_assembly
 pytest --collect-only
 ```
 
 Run the YOLO segmentor integration tests only:
 
 ```bash
-# from src/bitbots_lego_assembly
-pytest src/bitbots_lego_assembly/test/core/test_yolo_segmentor.py
+# from src/kinova_lego_assembly
+pytest src/kinova_lego_assembly/test/core/test_yolo_segmentor.py
 ```
 
 Run the offline motion/grasp scoring tests with per-pose pass-rate output:
 
 ```bash
-# from the repo root (bitbots_lego_assembly/)
-PYTHONPATH=$PWD/src/bitbots_lego_assembly pytest -v -s --log-cli-level=INFO \
-  src/bitbots_lego_assembly/test/motion/test_grasp_offline_scoring.py
+# from the repo root (kinova_lego_assembly/)
+PYTHONPATH=$PWD/src/kinova_lego_assembly pytest -v -s --log-cli-level=INFO \
+  src/kinova_lego_assembly/test/motion/test_grasp_offline_scoring.py
 ```
 
 These tests are ROS-free; they score a fixed set of brick poses against a
@@ -172,4 +172,4 @@ ROS as long as `requirements.txt` is installed.
 ## Extending
 
 To add a new segmentation backend (e.g. SAM) alongside YOLO, follow
-[`bitbots_lego_assembly/core/segmentation/README.md`](bitbots_lego_assembly/core/segmentation/README.md).
+[`kinova_lego_assembly/core/segmentation/README.md`](kinova_lego_assembly/core/segmentation/README.md).

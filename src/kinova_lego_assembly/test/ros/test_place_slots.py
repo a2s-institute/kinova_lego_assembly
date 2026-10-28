@@ -8,14 +8,14 @@ import pytest
 
 py_trees = pytest.importorskip("py_trees")
 behaviours = pytest.importorskip(
-    "bitbots_lego_assembly.ros.behaviours.behaviours",
-    reason="requires built ROS interfaces (bitbots_lego_assembly_interfaces)",
+    "kinova_lego_assembly.ros.behaviours.behaviours",
+    reason="requires built ROS interfaces (kinova_lego_assembly_interfaces)",
 )
-context_mod = pytest.importorskip("bitbots_lego_assembly.ros.behaviours.context")
-placement = pytest.importorskip("bitbots_lego_assembly.ros.placement")
+context_mod = pytest.importorskip("kinova_lego_assembly.ros.behaviours.context")
+placement = pytest.importorskip("kinova_lego_assembly.ros.placement")
 
-from bitbots_lego_assembly.core.blueprint import ModelRecipe, ModelStep
 from geometry_msgs.msg import PoseStamped
+from kinova_lego_assembly.core.blueprint import ModelRecipe, ModelStep
 
 PlaceSlot = placement.PlaceSlot
 PlacementRecord = placement.PlacementRecord
