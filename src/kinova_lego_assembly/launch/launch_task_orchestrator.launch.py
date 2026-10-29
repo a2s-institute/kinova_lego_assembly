@@ -5,7 +5,8 @@ health-checks every dependency at boot) comes up last:
 
 1. Simulation + MoveIt stack (optional, gated on ``sim_mode:=true``),
    via ``kinova_mujoco_sim``'s ``launch_sim_moveit.launch.py``, which
-   sequences MuJoCo sim then move_group internally.
+   sequences MuJoCo sim then move_group internally. ``use_sim_time``
+   follows ``sim_mode`` unless set explicitly.
 2. Segmentation service node.
 3. MMOR object recognition, brought up once segmentation is running.
    MMOR is a managed (lifecycle) node exposed as a ComposableNode, and it
@@ -152,13 +153,13 @@ def _sim_rviz_node(context: LaunchContext, rviz_config: str) -> list[Node]:
 
 def generate_launch_description() -> LaunchDescription:
     """Compose the ordered assembly stack with the orchestrator started last."""
+    # Must be declared after sim_mode, whose value it takes by default.
     use_sim_time_arg = DeclareLaunchArgument(
         "use_sim_time",
-        default_value="false",
+        default_value=LaunchConfiguration("sim_mode"),
         description=(
-            "Use simulation clock across the stack. Defaults to false for real-robot "
-            "operation (wall clock); set to true together with sim_mode:=true when "
-            "running against the MuJoCo simulation."
+            "Use simulation clock across the stack. Follows sim_mode by default: "
+            "wall clock on the real robot, sim clock with the MuJoCo simulation."
         ),
     )
     scene_arg = DeclareLaunchArgument(
@@ -378,10 +379,10 @@ def generate_launch_description() -> LaunchDescription:
 
     return LaunchDescription(
         [
+            sim_mode_arg,
             use_sim_time_arg,
             scene_arg,
             show_gui_arg,
-            sim_mode_arg,
             perception_params_arg,
             mmor_bringup_delay_arg,
             sim_moveit_stack,
