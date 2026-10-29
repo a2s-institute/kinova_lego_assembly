@@ -107,10 +107,15 @@ def build_stage(
     spec.option.integrator = mujoco.mjtIntegrator.mjINT_IMPLICITFAST
     spec.default.geom.solref = list(layout.CONTACT_SOLREF)
 
+    # Camera
+    spec.visual.global_.fovy = 30.0
+    spec.visual.global_.azimuth = -135.0
+    spec.visual.global_.elevation = -25.0
+
     # Lighting: ambient headlight and a directional sun light.
-    spec.visual.headlight.ambient = (0.3, 0.3, 0.3)
-    spec.visual.headlight.diffuse = (0.0, 0.0, 0.0)
-    spec.visual.headlight.specular = (0.0, 0.0, 0.0)
+    spec.visual.headlight.ambient = (0.6, 0.6, 0.5)
+    spec.visual.headlight.diffuse = (0.3, 0.4, 0.45)
+    spec.visual.headlight.specular = (0.3, 0.4, 0.3)
 
     sun = spec.worldbody.add_light(
         name="sun",

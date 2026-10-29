@@ -68,10 +68,10 @@ ARM2_QPOS: tuple[float, ...] = (0.0, -0.7485, 3.1414, -2.0566, 0.0, -1.7792, 1.5
 """Static joint configuration of the second arm (obstacle arm)."""
 
 # --- Lego holder (welded, front-centre between the two arms) ---
-HOLDER_POS_XY: tuple[float, float] = (0.22, 0.175)
+HOLDER_POS_XY: tuple[float, float] = (0.215, 0.268)
 """Holder centre on the table plane, in front of and between the arms."""
 
-HOLDER_YAW_DEG: float = 0.0
+HOLDER_YAW_DEG: float = 0.2
 """Holder rotation about the world z-axis, in degrees."""
 
 # ``HOLDER_QUAT`` is derived from ``HOLDER_YAW_DEG`` via ``yaw_quat``, which pulls

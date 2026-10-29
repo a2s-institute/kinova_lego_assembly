@@ -94,7 +94,7 @@ so the layout matches its [README](src/kinova_lego_assembly/trained_models/READM
 ### 4. Build
 
 ```bash
-python3 -m colcon build --packages-up-to kinova_lego_assembly
+python3 -m colcon build --packages-up-to kinova_lego_assembly --symlink-install
 source install/setup.bash
 ```
 

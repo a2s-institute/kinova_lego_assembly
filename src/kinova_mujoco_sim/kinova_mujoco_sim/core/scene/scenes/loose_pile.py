@@ -28,7 +28,7 @@ from assets.mujoco.duplo_brick import (  # noqa: E402
 
 # Loose pile, as (brick_type, colour, dx, dy, yaw_deg) offsets from the pile
 # centre. Spread keeps the footprints clear of each other and of the holder.
-_PILE_OFFSET_FROM_WORK_ORIGIN = (-0.02, -0.25)
+_PILE_OFFSET_FROM_WORK_ORIGIN = (-0.15, -0.38)
 _LOOSE_BRICKS = [
     ("2x2", "yellow", -0.05, 0.06, 12.0),
     ("2x2", "green", 0.03, 0.07, -8.0),
