@@ -21,7 +21,10 @@ setup(
         ("share/ament_index/resource_index/packages", ["resource/" + package_name]),
         ("share/" + package_name, ["package.xml", ".setup_assistant"]),
         (str(Path("share") / package_name / "launch"), glob("launch/*.launch.py")),
-        (str(Path("share") / package_name / "config"), glob("config/*.yaml")),
+        (
+            str(Path("share") / package_name / "config"),
+            glob("config/*.yaml") + glob("config/*.srdf"),
+        ),
         (
             str(Path("share") / package_name / "config" / "rviz"),
             glob("config/rviz/*.rviz"),

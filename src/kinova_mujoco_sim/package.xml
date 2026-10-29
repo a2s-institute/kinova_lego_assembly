@@ -33,6 +33,11 @@
   <exec_depend>joint_trajectory_controller</exec_depend>
   <exec_depend>position_controllers</exec_depend>
 
+  <!-- MoveIt stack used by launch_sim_with_moveit.launch.py -->
+  <exec_depend>moveit_configs_utils</exec_depend>
+  <exec_depend>moveit_ros_move_group</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+
   <export>
     <build_type>ament_python</build_type>
   </export>

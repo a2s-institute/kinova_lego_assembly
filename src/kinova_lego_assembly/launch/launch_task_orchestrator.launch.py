@@ -4,8 +4,8 @@ Startup order is enforced so the task orchestrator (which fail-fast
 health-checks every dependency at boot) comes up last:
 
 1. Simulation + MoveIt stack (optional, gated on ``sim_mode:=true``),
-   via ``launch_sim_moveit.launch.py`` which sequences MuJoCo sim then
-   move_group + RViz internally.
+   via ``kinova_mujoco_sim``'s ``launch_sim_moveit.launch.py``, which
+   sequences MuJoCo sim then move_group internally.
 2. Segmentation service node.
 3. MMOR object recognition, brought up once segmentation is running.
    MMOR is a managed (lifecycle) node exposed as a ComposableNode, and it
@@ -114,7 +114,7 @@ def _sim_rviz_node(context: LaunchContext, rviz_config: str) -> list[Node]:
         "init_gripper": "0.0",
     }
     moveit_config = (
-        MoveItConfigsBuilder("gen3", package_name="kinova_lego_assembly")
+        MoveItConfigsBuilder("gen3", package_name=helpers.PACKAGE)
         .robot_description(file_path=str(description_xacro), mappings=xacro_mappings)
         .robot_description_semantic()
         .trajectory_execution()
@@ -175,9 +175,10 @@ def generate_launch_description() -> LaunchDescription:
         "sim_mode",
         default_value="false",
         description=(
-            "If true, include launch_sim_moveit.launch.py to bring up the MuJoCo "
-            "simulation and MoveIt stack alongside the orchestrator. If false, "
-            "the orchestrator assumes an external sim/MoveIt stack is already running."
+            "If true, include kinova_mujoco_sim's launch_sim_moveit.launch.py to "
+            "bring up the MuJoCo simulation and MoveIt stack alongside the "
+            "orchestrator. If false, the orchestrator assumes an external robot/MoveIt "
+            "stack is already running."
         ),
     )
     perception_params_arg = DeclareLaunchArgument(
@@ -204,7 +205,7 @@ def generate_launch_description() -> LaunchDescription:
         PythonLaunchDescriptionSource(
             PathJoinSubstitution(
                 [
-                    FindPackageShare("kinova_lego_assembly"),
+                    FindPackageShare("kinova_mujoco_sim"),
                     "launch",
                     "launch_sim_moveit.launch.py",
                 ]

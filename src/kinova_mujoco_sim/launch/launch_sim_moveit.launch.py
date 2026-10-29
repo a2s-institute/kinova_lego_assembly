@@ -2,21 +2,23 @@
 
 Brings up:
 
-1. ``kinova_mujoco_sim/launch_mujoco_ros2_control.launch.py`` (MuJoCo sim +
-   ros2_control + robot_state_publisher).
+1. ``launch_mujoco_ros2_control.launch.py`` (MuJoCo sim + ros2_control +
+   robot_state_publisher).
 2. ``move_group`` (MoveIt) configured against the same URDF/xacro the sim
    uses, so ``robot_description``, SRDF, kinematics, and controller
    descriptions all agree across sim, MoveIt, and RViz.
 3. Optional RViz2 view (``moveit_rviz:=true``) preloaded with the task
    layout and MoveIt semantic/kinematics parameters so the
-   MotionPlanning panel can parse SRDF.
+   MotionPlanning panel can parse SRDF. The default view
+   (``moveit_rviz_config``) comes from ``kinova_lego_assembly`` and is only
+   resolved when RViz starts.
 
 MoveIt startup is deferred by ``moveit_start_delay_s`` so the simulation has
 time to publish ``/robot_description`` and expose controllers before
 ``move_group`` initialises.
 
 Usage:
-    ros2 launch kinova_lego_assembly launch_sim_moveit.launch.py
+    ros2 launch kinova_mujoco_sim launch_sim_moveit.launch.py
 """
 
 from __future__ import annotations
@@ -63,7 +65,14 @@ def generate_launch_description() -> LaunchDescription:
     moveit_rviz_arg = DeclareLaunchArgument(
         "moveit_rviz",
         default_value="true",
-        description="Enable the MoveIt RViz view (orchestrator.rviz).",
+        description="Enable the MoveIt RViz view.",
+    )
+    moveit_rviz_config_arg = DeclareLaunchArgument(
+        "moveit_rviz_config",
+        default_value=PathJoinSubstitution(
+            [FindPackageShare("kinova_lego_assembly"), "config", "rviz", "orchestrator.rviz"]
+        ),
+        description="RViz config for the MoveIt view.",
     )
     prefix_arg = DeclareLaunchArgument(
         "prefix",
@@ -88,12 +97,6 @@ def generate_launch_description() -> LaunchDescription:
         arm_anchor=layout.ARM1_ANCHOR,
         home=home,
     )
-    rviz_config = str(
-        Path(get_package_share_directory("kinova_lego_assembly"))
-        / "config"
-        / "rviz"
-        / "orchestrator.rviz"
-    )
     xacro_mappings = {
         "name": "gen3",
         "prefix": "",
@@ -112,7 +115,7 @@ def generate_launch_description() -> LaunchDescription:
     }
 
     moveit_config = (
-        MoveItConfigsBuilder("gen3", package_name="kinova_lego_assembly")
+        MoveItConfigsBuilder("gen3", package_name=helpers.PACKAGE)
         .robot_description(file_path=str(description_xacro), mappings=xacro_mappings)
         .robot_description_semantic()
         .trajectory_execution()
@@ -174,7 +177,7 @@ def generate_launch_description() -> LaunchDescription:
         package="rviz2",
         executable="rviz2",
         output="screen",
-        arguments=["-d", rviz_config],
+        arguments=["-d", LaunchConfiguration("moveit_rviz_config")],
         parameters=[
             robot_description,
             moveit_config.robot_description_semantic,
@@ -202,6 +205,7 @@ def generate_launch_description() -> LaunchDescription:
             show_gui_arg,
             sim_rviz_arg,
             moveit_rviz_arg,
+            moveit_rviz_config_arg,
             prefix_arg,
             moveit_start_delay_arg,
             sim_launch,
