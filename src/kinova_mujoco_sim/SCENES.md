@@ -13,10 +13,10 @@ Source the workspace install space and launch as usual:
 
 ```bash
 # default scene
-ros2 launch kinova_mujoco_sim launch_mujoco_ros2_control.launch.py
+ros2 launch kinova_mujoco_sim launch_sim.launch.py
 
 # explicit scene
-ros2 launch kinova_mujoco_sim launch_mujoco_ros2_control.launch.py scene:=loose_pile
+ros2 launch kinova_mujoco_sim launch_sim.launch.py scene:=loose_pile
 ```
 
 An unknown name fails fast with `unknown scene '<name>'; choose from [...]`,

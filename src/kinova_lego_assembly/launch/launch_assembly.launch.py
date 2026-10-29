@@ -4,7 +4,7 @@ Startup order is enforced so the task orchestrator (which fail-fast
 health-checks every dependency at boot) comes up last:
 
 1. Simulation + MoveIt stack (optional, gated on ``sim_mode:=true``),
-   via ``kinova_mujoco_sim``'s ``launch_sim_moveit.launch.py``, which
+   via ``kinova_mujoco_sim``'s ``launch_sim_with_moveit.launch.py``, which
    sequences MuJoCo sim then move_group internally. ``use_sim_time``
    follows ``sim_mode`` unless set explicitly.
 2. Segmentation service node.
@@ -27,7 +27,7 @@ requested. It also drives deactivate -> cleanup on launch shutdown. No
 transition-timing guesswork.
 
 Usage:
-    ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py
+    ros2 launch kinova_lego_assembly launch_assembly.launch.py
 """
 
 from __future__ import annotations
@@ -176,7 +176,7 @@ def generate_launch_description() -> LaunchDescription:
         "sim_mode",
         default_value="false",
         description=(
-            "If true, include kinova_mujoco_sim's launch_sim_moveit.launch.py to "
+            "If true, include kinova_mujoco_sim's launch_sim_with_moveit.launch.py to "
             "bring up the MuJoCo simulation and MoveIt stack alongside the "
             "orchestrator. If false, the orchestrator assumes an external robot/MoveIt "
             "stack is already running."
@@ -208,7 +208,7 @@ def generate_launch_description() -> LaunchDescription:
                 [
                     FindPackageShare("kinova_mujoco_sim"),
                     "launch",
-                    "launch_sim_moveit.launch.py",
+                    "launch_sim_with_moveit.launch.py",
                 ]
             )
         ),

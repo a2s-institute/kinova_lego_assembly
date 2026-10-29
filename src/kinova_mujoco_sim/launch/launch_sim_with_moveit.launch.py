@@ -2,7 +2,7 @@
 
 Brings up:
 
-1. ``launch_mujoco_ros2_control.launch.py`` (MuJoCo sim + ros2_control +
+1. ``launch_sim.launch.py`` (MuJoCo sim + ros2_control +
    robot_state_publisher).
 2. ``move_group`` (MoveIt) configured against the same URDF/xacro the sim
    uses, so ``robot_description``, SRDF, kinematics, and controller
@@ -18,7 +18,7 @@ time to publish ``/robot_description`` and expose controllers before
 ``move_group`` initialises.
 
 Usage:
-    ros2 launch kinova_mujoco_sim launch_sim_moveit.launch.py
+    ros2 launch kinova_mujoco_sim launch_sim_with_moveit.launch.py
 """
 
 from __future__ import annotations
@@ -138,7 +138,7 @@ def generate_launch_description() -> LaunchDescription:
                 [
                     FindPackageShare("kinova_mujoco_sim"),
                     "launch",
-                    "launch_mujoco_ros2_control.launch.py",
+                    "launch_sim.launch.py",
                 ]
             )
         ),

@@ -115,7 +115,7 @@ python3 -m colcon build --packages-up-to kinova_lego_assembly
 source install/setup.bash
 ```
 
-`launch_task_orchestrator.launch.py` starts the assembly pipeline in order:
+`launch_assembly.launch.py` starts the assembly pipeline in order:
 the segmentation service, MMOR object recognition and its lifecycle manager,
 the planning-scene obstacle publisher, and the task orchestrator. It also
 starts the task RViz view and waits for perception and motion-planning
@@ -186,7 +186,7 @@ ros2 launch kinova_vision kinova_vision.launch.py depth_registration:=true
 cd ~/kinova_lego_assembly_ws
 source install/setup.bash
 source venv/bin/activate
-ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py
+ros2 launch kinova_lego_assembly launch_assembly.launch.py
 ```
 
 `192.168.1.10` is the arm's factory IP; change it if yours was reassigned.
@@ -197,7 +197,7 @@ Follow the [`kinova_mujoco_sim` installation guide](src/kinova_mujoco_sim/README
 to build the simulator, then:
 
 ```bash
-ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py sim_mode:=true
+ros2 launch kinova_lego_assembly launch_assembly.launch.py sim_mode:=true
 ```
 
 This also brings up the simulator and MoveIt, and `use_sim_time` follows
@@ -205,11 +205,11 @@ This also brings up the simulator and MoveIt, and `use_sim_time` follows
 
 ### Segmentation only
 
-`launch_kinova_lego_assembly.launch.py` starts only the `LegoSegmentation`
+`launch_segmentation.launch.py` starts only the `LegoSegmentation`
 service node, which provides `~/segment_image`:
 
 ```bash
-ros2 launch kinova_lego_assembly launch_kinova_lego_assembly.launch.py
+ros2 launch kinova_lego_assembly launch_segmentation.launch.py
 ```
 
 Tune segmentation inference parameters through ROS parameters (see

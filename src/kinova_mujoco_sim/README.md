@@ -64,7 +64,7 @@ to regenerate it.
 source /opt/ros/humble/setup.bash
 source install/setup.bash
 source venv/bin/activate
-ros2 launch kinova_mujoco_sim launch_mujoco_ros2_control.launch.py
+ros2 launch kinova_mujoco_sim launch_sim.launch.py
 ```
 
 **Stopping:** press `Ctrl+C` in the launch terminal. This shuts down every
@@ -79,18 +79,18 @@ ros2 run rqt_joint_trajectory_controller rqt_joint_trajectory_controller
 
 ### Run with MoveIt
 
-`launch_sim_moveit.launch.py` starts the simulation, then `move_group` and a
+`launch_sim_with_moveit.launch.py` starts the simulation, then `move_group` and a
 MoveIt RViz view. The MoveIt config for the simulated arm (`config/gen3.srdf`,
 kinematics, joint limits, planners, controllers) lives in this package.
 
 ```bash
-ros2 launch kinova_mujoco_sim launch_sim_moveit.launch.py
+ros2 launch kinova_mujoco_sim launch_sim_with_moveit.launch.py
 ```
 
 ### Run with the assembly pipeline
 
 ```bash
-ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py sim_mode:=true
+ros2 launch kinova_lego_assembly launch_assembly.launch.py sim_mode:=true
 ```
 
 ## Configuration
