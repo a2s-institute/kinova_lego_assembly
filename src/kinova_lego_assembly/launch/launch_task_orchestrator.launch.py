@@ -37,21 +37,117 @@ from ament_index_python.packages import get_package_share_directory
 from launch.actions import (
     DeclareLaunchArgument,
     IncludeLaunchDescription,
+    OpaqueFunction,
     RegisterEventHandler,
     TimerAction,
 )
 from launch.conditions import IfCondition, UnlessCondition
 from launch.event_handlers import OnProcessStart
+from launch.launch_context import LaunchContext
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
-from moveit_configs_utils import MoveItConfigsBuilder
 
-from kinova_mujoco_sim.core.scene import layout
-from kinova_mujoco_sim.ros import launch_helpers as helpers
 from launch import LaunchDescription
+
+
+def _sim_rviz_node(context: LaunchContext, rviz_config: str) -> list[Node]:
+    """Build the sim-mode RViz node from the MuJoCo robot description.
+
+    Only executed when ``sim_mode:=true``, so ``kinova_mujoco_sim`` and the
+    xacro / MoveIt config processing are never touched on the real robot.
+    Launch arguments must stay declared in ``generate_launch_description``:
+    ``ros2 launch -s`` does not run opaque functions.
+
+    Parameters
+    ----------
+    context : launch.launch_context.LaunchContext
+        Launch context supplied by ``OpaqueFunction`` (unused).
+    rviz_config : str
+        Path to the RViz config file.
+
+    Returns
+    -------
+    list of launch_ros.actions.Node
+        The sim-mode RViz node.
+    """
+    from moveit_configs_utils import MoveItConfigsBuilder
+
+    from kinova_mujoco_sim.core.scene import layout
+    from kinova_mujoco_sim.ros import launch_helpers as helpers
+
+    # MoveIt config so the RViz MotionPlanning panel gets SRDF, kinematics,
+    # and joint limits (otherwise the panel cannot parse robot_description_semantic).
+    # This is the SIMULATION robot description (built from the MuJoCo xacro) and
+    # is only fed to RViz in sim_mode. On the real robot the bringup publishes
+    # /robot_description and /robot_description_semantic, so RViz sources its
+    # model from those topics instead (see the real-mode RViz node).
+    # Injecting the sim xacro as a param in real mode makes RViz build a second,
+    # sim-flavoured robot on top of the published one (the "multiple robot
+    # models" overlap), so we keep these params sim-only.
+    kinova_share = get_package_share_directory(helpers.PACKAGE)
+    description_xacro = Path(kinova_share) / "description" / "gen3_7dof_mujoco.urdf.xacro"
+    home = helpers.home_positions(kinova_share)
+    arm_x, arm_y, arm_z = layout.ARM1_ANCHOR
+    robot_description = helpers.build_robot_description(
+        kinova_share,
+        prefix="",
+        arm_anchor=layout.ARM1_ANCHOR,
+        home=home,
+    )
+    xacro_mappings = {
+        "name": "gen3",
+        "prefix": "",
+        "vision": "true",
+        "arm_x": str(arm_x),
+        "arm_y": str(arm_y),
+        "arm_z": str(arm_z),
+        "init_joint_1": str(home.get("joint_1", 0.0)),
+        "init_joint_2": str(home.get("joint_2", 0.0)),
+        "init_joint_3": str(home.get("joint_3", 0.0)),
+        "init_joint_4": str(home.get("joint_4", 0.0)),
+        "init_joint_5": str(home.get("joint_5", 0.0)),
+        "init_joint_6": str(home.get("joint_6", 0.0)),
+        "init_joint_7": str(home.get("joint_7", 0.0)),
+        "init_gripper": "0.0",
+    }
+    moveit_config = (
+        MoveItConfigsBuilder("gen3", package_name="kinova_lego_assembly")
+        .robot_description(file_path=str(description_xacro), mappings=xacro_mappings)
+        .robot_description_semantic()
+        .trajectory_execution()
+        .robot_description_kinematics()
+        .planning_pipelines()
+        .joint_limits()
+        .to_moveit_configs()
+    )
+
+    # Model + SRDF/kinematics/planning params come from the sim xacro-derived
+    # moveit_config (no robot bringup is publishing them).
+    return [
+        Node(
+            package="rviz2",
+            executable="rviz2",
+            name="orchestrator_rviz",
+            output="screen",
+            arguments=["-d", rviz_config],
+            parameters=[
+                robot_description,
+                moveit_config.robot_description_semantic,
+                moveit_config.robot_description_kinematics,
+                moveit_config.planning_pipelines,
+                moveit_config.joint_limits,
+                {
+                    "use_sim_time": ParameterValue(
+                        LaunchConfiguration("use_sim_time"),
+                        value_type=bool,
+                    )
+                },
+            ],
+        )
+    ]
 
 
 def generate_launch_description() -> LaunchDescription:
@@ -131,74 +227,10 @@ def generate_launch_description() -> LaunchDescription:
         / "rviz"
         / "orchestrator.rviz"
     )
-    # MoveIt config so the RViz MotionPlanning panel gets SRDF, kinematics,
-    # and joint limits (otherwise the panel cannot parse robot_description_semantic).
-    # This is the SIMULATION robot description (built from the MuJoCo xacro) and
-    # is only fed to RViz in sim_mode. On the real robot the bringup publishes
-    # /robot_description and /robot_description_semantic, so RViz sources its
-    # model from those topics instead (see the real-mode RViz node below).
-    # Injecting the sim xacro as a param in real mode makes RViz build a second,
-    # sim-flavoured robot on top of the published one (the "multiple robot
-    # models" overlap), so we keep these params sim-only.
-    kinova_share = get_package_share_directory(helpers.PACKAGE)
-    description_xacro = Path(kinova_share) / "description" / "gen3_7dof_mujoco.urdf.xacro"
-    home = helpers.home_positions(kinova_share)
-    arm_x, arm_y, arm_z = layout.ARM1_ANCHOR
-    robot_description = helpers.build_robot_description(
-        kinova_share,
-        prefix="",
-        arm_anchor=layout.ARM1_ANCHOR,
-        home=home,
-    )
-    xacro_mappings = {
-        "name": "gen3",
-        "prefix": "",
-        "vision": "true",
-        "arm_x": str(arm_x),
-        "arm_y": str(arm_y),
-        "arm_z": str(arm_z),
-        "init_joint_1": str(home.get("joint_1", 0.0)),
-        "init_joint_2": str(home.get("joint_2", 0.0)),
-        "init_joint_3": str(home.get("joint_3", 0.0)),
-        "init_joint_4": str(home.get("joint_4", 0.0)),
-        "init_joint_5": str(home.get("joint_5", 0.0)),
-        "init_joint_6": str(home.get("joint_6", 0.0)),
-        "init_joint_7": str(home.get("joint_7", 0.0)),
-        "init_gripper": "0.0",
-    }
-    moveit_config = (
-        MoveItConfigsBuilder("gen3", package_name="kinova_lego_assembly")
-        .robot_description(file_path=str(description_xacro), mappings=xacro_mappings)
-        .robot_description_semantic()
-        .trajectory_execution()
-        .robot_description_kinematics()
-        .planning_pipelines()
-        .joint_limits()
-        .to_moveit_configs()
-    )
-
-    # Sim-mode RViz: model + SRDF/kinematics/planning params come from the sim
-    # xacro-derived moveit_config (no robot bringup is publishing them).
-    orchestrator_rviz_node_sim = Node(
+    orchestrator_rviz_node_sim = OpaqueFunction(
+        function=_sim_rviz_node,
+        kwargs={"rviz_config": orchestrator_rviz_config},
         condition=IfCondition(LaunchConfiguration("sim_mode")),
-        package="rviz2",
-        executable="rviz2",
-        name="orchestrator_rviz",
-        output="screen",
-        arguments=["-d", orchestrator_rviz_config],
-        parameters=[
-            robot_description,
-            moveit_config.robot_description_semantic,
-            moveit_config.robot_description_kinematics,
-            moveit_config.planning_pipelines,
-            moveit_config.joint_limits,
-            {
-                "use_sim_time": ParameterValue(
-                    LaunchConfiguration("use_sim_time"),
-                    value_type=bool,
-                )
-            },
-        ],
     )
 
     # Real-mode RViz: the robot bringup already publishes /robot_description and
