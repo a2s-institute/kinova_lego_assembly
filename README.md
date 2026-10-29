@@ -13,30 +13,13 @@ A modular ROS 2 system that maintains a catalog of LEGO blueprints, receives a t
 
 ---
 
-## Repository layout
+## Packages
 
-This repository is a colcon monorepo. The ROS 2 packages live under `src/`; shared tooling, assets, and docs live at the repository root.
-
-### ROS 2 packages (`src/`)
-
-| Package                                                                    | Role                                                                                                                                                                                                                                |
-| -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`kinova_lego_assembly`](src/kinova_lego_assembly)                       | The main ROS 2 application: LEGO perception, blueprint handling, and assembly orchestration. Its [README](src/kinova_lego_assembly/README.md) covers tests and extending the package. |
-| [`kinova_lego_assembly_interfaces`](src/kinova_lego_assembly_interfaces) | The ROS 2 messages, services, and actions used to communicate between application components.                                                                                                                                       |
-| [`kinova_mujoco_sim`](src/kinova_mujoco_sim)                               | The MuJoCo simulation of the Kinova Gen3 arm, Robotiq gripper, table, holder, and LEGO bricks. Optional; also hosts the MoveIt config for the simulated arm. Its [README](src/kinova_mujoco_sim/README.md) covers setup and usage.                                            |
-
-The simulator also depends on the DFKI **`mujoco_ros2_control`** package, which is not released for our use case. It is vendored: cloned into the workspace at a pinned commit and patched. See [`src/kinova_mujoco_sim/patches/`](src/kinova_mujoco_sim/patches) for the patch, the apply script, and build instructions.
-
-The brick / holder meshes, the MuJoCo `MjSpec` builders (`assets/mujoco/duplo_brick.py`, `assets/mujoco/lego_holder.py`), and the `lego_blueprints.yaml` catalog live in [`src/kinova_lego_assembly/assets/`](src/kinova_lego_assembly/assets). The simulator's scene generator imports the builders from there.
-
----
-
-## Documentation
-
-| Topic                                   | Reference                                                        |
-| --------------------------------------- | ---------------------------------------------------------------- |
-| Simulator package (build, run, cameras) | [`kinova_mujoco_sim/README.md`](src/kinova_mujoco_sim/README.md) |
-| Simulator scenes and layout knobs       | [`SCENES.md`](src/kinova_mujoco_sim/SCENES.md)                   |
+| Package                                                                  | Role                                                                                        |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| [`kinova_lego_assembly`](src/kinova_lego_assembly)                       | Perception, blueprints, and assembly orchestration ([tests](src/kinova_lego_assembly/README.md#tests)) |
+| [`kinova_lego_assembly_interfaces`](src/kinova_lego_assembly_interfaces) | Messages, services, and actions                                                             |
+| [`kinova_mujoco_sim`](src/kinova_mujoco_sim)                             | Optional MuJoCo simulation and its MoveIt config ([README](src/kinova_mujoco_sim/README.md)) |
 
 ---
 
@@ -50,12 +33,11 @@ Steps 1 to 4 install the main application. Then pick how to run it:
 
 ### Prerequisites
 
-| Requirement | Version          | Notes                                                                                 |
-| ----------- | ---------------- | ------------------------------------------------------------------------------------- |
-| Ubuntu      | 22.04 LTS        | Tested platform                                                                       |
-| ROS 2       | Humble Hawksbill | `ros-humble-desktop`                                                                  |
-| Python      | 3.10             | Comes with Humble                                                                     |
-| rosdep      |                  | [Initialised](https://docs.ros.org/en/humble/Tutorials/Intermediate/Rosdep.html) once |
+| Requirement | Version          |
+| ----------- | ---------------- |
+| Ubuntu      | 22.04 LTS        |
+| ROS 2       | Humble Hawksbill |
+| Python      | 3.10             |
 
 ### 1. Create a workspace and clone the repositories
 
@@ -71,7 +53,9 @@ git clone git@github.com:Jay-droid/mas_industrial_robotics.git
 # Return to the workspace root and set up a venv that can access ROS packages.
 cd ~/kinova_lego_assembly_ws
 sudo apt update
-sudo apt install -y python3-venv python3-vcstool
+sudo apt install -y python3-venv python3-vcstool python3-rosdep
+sudo rosdep init  # skip if rosdep was initialised before
+rosdep update
 
 source /opt/ros/humble/setup.bash
 python3 -m venv --system-site-packages venv
@@ -218,7 +202,3 @@ Tune segmentation inference parameters through ROS parameters (see
 ```bash
 ros2 param set /LegoSegmentation segmentation.yolo.conf 0.7
 ```
-
-### Tests
-
-See the [package README](src/kinova_lego_assembly/README.md#tests).
