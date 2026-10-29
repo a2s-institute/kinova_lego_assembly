@@ -15,11 +15,11 @@ A modular ROS 2 system that maintains a catalog of LEGO blueprints, receives a t
 
 ## Packages
 
-| Package                                                                  | Role                                                                                        |
-| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------- |
+| Package                                                                  | Role                                                                                                   |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------ |
 | [`kinova_lego_assembly`](src/kinova_lego_assembly)                       | Perception, blueprints, and assembly orchestration ([tests](src/kinova_lego_assembly/README.md#tests)) |
-| [`kinova_lego_assembly_interfaces`](src/kinova_lego_assembly_interfaces) | Messages, services, and actions                                                             |
-| [`kinova_mujoco_sim`](src/kinova_mujoco_sim)                             | Optional MuJoCo simulation and its MoveIt config ([README](src/kinova_mujoco_sim/README.md)) |
+| [`kinova_lego_assembly_interfaces`](src/kinova_lego_assembly_interfaces) | Messages, services, and actions                                                                        |
+| [`kinova_mujoco_sim`](src/kinova_mujoco_sim)                             | Optional MuJoCo simulation and its MoveIt config ([README](src/kinova_mujoco_sim/README.md))           |
 
 ---
 
@@ -48,7 +48,7 @@ recognition used by the orchestrator.
 mkdir -p ~/kinova_lego_assembly_ws/src
 cd ~/kinova_lego_assembly_ws/src
 git clone git@github.com:a2s-institute/kinova_lego_assembly.git
-git clone git@github.com:Jay-droid/mas_industrial_robotics.git
+git clone git@github.com:Jay-droid/mas_industrial_robotics.git --depth 1
 
 # Return to the workspace root and set up a venv that can access ROS packages.
 cd ~/kinova_lego_assembly_ws
