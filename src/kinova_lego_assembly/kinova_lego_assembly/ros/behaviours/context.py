@@ -75,7 +75,6 @@ class OrchestratorParams:
     grasp_x_offset_step_m: float = 0.002
     grasp_x_offset_steps: int = 5
 
-    dummy_place_y_offset_m: float = -0.5
     icp_refinement: IcpRefinementParams = field(default_factory=IcpRefinementParams)
 
 

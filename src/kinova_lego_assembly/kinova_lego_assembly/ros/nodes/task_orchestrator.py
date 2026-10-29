@@ -260,7 +260,6 @@ class TaskOrchestratorNode(Node):
         self.declare_parameter("orchestrator.settle_velocity_tolerance", 0.01)
         self.declare_parameter("orchestrator.settle_hold_s", 0.2)
         self.declare_parameter("orchestrator.settle_timeout_s", 3.0)
-        self.declare_parameter("orchestrator.dummy_place_y_offset_m", -0.5)
 
         self.declare_parameter(
             "orchestrator.gripper_action", "/robotiq_gripper_controller/gripper_cmd"
@@ -356,7 +355,6 @@ class TaskOrchestratorNode(Node):
             snap_pose_offset_m=float(get("orchestrator.snap_pose_offset_m").value),
             grasp_x_offset_step_m=float(get("orchestrator.grasp_x_offset_step_m").value),
             grasp_x_offset_steps=int(get("orchestrator.grasp_x_offset_steps").value),
-            dummy_place_y_offset_m=float(get("orchestrator.dummy_place_y_offset_m").value),
             icp_refinement=IcpRefinementParams(
                 enabled=bool(get("icp_pose_refinement.enabled").value),
                 point_cloud_topic=str(get("icp_pose_refinement.point_cloud_topic").value),
