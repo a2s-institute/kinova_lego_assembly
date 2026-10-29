@@ -53,7 +53,7 @@ git clone git@github.com:Jay-droid/mas_industrial_robotics.git --depth 1
 # Return to the workspace root and set up a venv that can access ROS packages.
 cd ~/kinova_lego_assembly_ws
 sudo apt update
-sudo apt install -y python3-venv python3-vcstool python3-rosdep
+sudo apt install -y python3-venv python3-vcstool python3-rosdep python3-colcon-common-extensions
 sudo rosdep init  # skip if rosdep was initialised before
 rosdep update
 
@@ -68,6 +68,7 @@ source venv/bin/activate
 From the workspace root, with the venv active:
 
 ```bash
+python3 -m pip install -U pip
 python3 -m pip install -r src/kinova_lego_assembly/src/kinova_lego_assembly/requirements.txt
 # optional: test and lint tools
 python3 -m pip install -r src/kinova_lego_assembly/src/kinova_lego_assembly/requirements.dev.txt
@@ -75,7 +76,8 @@ python3 -m pip install -r src/kinova_lego_assembly/src/kinova_lego_assembly/requ
 rosdep install --ignore-src -y --from-paths \
   src/kinova_lego_assembly/src/kinova_lego_assembly \
   src/kinova_lego_assembly/src/kinova_lego_assembly_interfaces \
-  src/mas_industrial_robotics
+  src/mas_industrial_robotics/mir_object_recognition \
+  src/mas_industrial_robotics/mir_interfaces
 ```
 
 `kinova_mujoco_sim` is left out on purpose; its dependencies are covered by the
@@ -89,22 +91,12 @@ and extract it into
 [`src/kinova_lego_assembly/trained_models/`](src/kinova_lego_assembly/trained_models)
 so the layout matches its [README](src/kinova_lego_assembly/trained_models/README.md).
 
-The registry picks the highest available `v<N>` directory by default;
-override with the `segmentation.model_version` parameter.
-
 ### 4. Build
 
 ```bash
 python3 -m colcon build --packages-up-to kinova_lego_assembly
 source install/setup.bash
 ```
-
-`launch_assembly.launch.py` starts the assembly pipeline in order:
-the segmentation service, MMOR object recognition and its lifecycle manager,
-the planning-scene obstacle publisher, and the task orchestrator. It also
-starts the task RViz view and waits for perception and motion-planning
-dependencies before executing the assembly behavior. List all launch
-arguments with `-s`.
 
 ### Option A: Real robot
 
@@ -115,8 +107,9 @@ their own workspace, built without this project's venv.
 #### A1. Create the Kortex workspace
 
 ```bash
-sudo apt install -y python3-colcon-common-extensions python3-vcstool
 mkdir -p ~/kinova_kortex_ws/src
+cd ~/kinova_kortex_ws
+source /opt/ros/humble/setup.bash
 ```
 
 #### A2. Build `ros2_kortex`
@@ -126,8 +119,6 @@ Driver, robot description, and MoveIt config for the Gen3. See the
 for more information.
 
 ```bash
-source /opt/ros/humble/setup.bash
-cd ~/kinova_kortex_ws
 git clone -b humble --single-branch https://github.com/Kinovarobotics/ros2_kortex.git src/ros2_kortex
 vcs import src --skip-existing --input src/ros2_kortex/ros2_kortex.$ROS_DISTRO.repos
 vcs import src --skip-existing --input src/ros2_kortex/ros2_kortex-not-released.$ROS_DISTRO.repos
@@ -183,9 +174,6 @@ to build the simulator, then:
 ```bash
 ros2 launch kinova_lego_assembly launch_assembly.launch.py sim_mode:=true
 ```
-
-This also brings up the simulator and MoveIt, and `use_sim_time` follows
-`sim_mode` automatically.
 
 ### Segmentation only
 

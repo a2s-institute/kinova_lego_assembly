@@ -38,8 +38,8 @@ git -C src/mujoco_ros2_control checkout 82b602b
 # 2. Apply the vendored patch
 src/kinova_lego_assembly/src/kinova_mujoco_sim/patches/apply.sh
 
-# 3. Resolve ROS dependencies for everything in the workspace.
-rosdep install --from-paths src --ignore-src -y
+# 3. Resolve ROS dependencies.
+rosdep install --from-paths src/mujoco_ros2_control --ignore-src -y
 
 # 4. Activate venv and install the Python requirements
 source venv/bin/activate
@@ -47,6 +47,7 @@ python3 -m pip install -r src/kinova_lego_assembly/src/kinova_mujoco_sim/require
 
 # 5. Build kinova_mujoco_sim and its dependencies
 python3 -m colcon build --packages-up-to kinova_mujoco_sim --symlink-install
+source install/setup.bash
 ```
 
 > If the released `ros-humble-mujoco-ros2-control` Debian package is installed,
@@ -61,9 +62,6 @@ to regenerate it.
 ### Run
 
 ```bash
-source /opt/ros/humble/setup.bash
-source install/setup.bash
-source venv/bin/activate
 ros2 launch kinova_mujoco_sim launch_sim.launch.py
 ```
 
