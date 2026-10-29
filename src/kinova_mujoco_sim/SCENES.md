@@ -3,14 +3,6 @@
 How to launch different tabletop layouts in `kinova_mujoco_sim` and which knobs
 control the fixed work cell.
 
-Install, build, and the basic run command live in the
-[package README](README.md). Design rationale lives in
-[ADR-0015](../../docs/adr/0015-ros2-control-mujoco-sim.md) (ros2_control
-bringup, superseding the original node design in
-[ADR-0012](../../docs/adr/0012-kinova-mujoco-sim-design.md)) and
-[ADR-0023](../../docs/adr/0023-deterministic-scene-layout.md) (the stage/scene
-split and deterministic layout).
-
 ## Launching a scene
 
 The `scene` launch argument selects which layout populates the table. It
@@ -32,9 +24,9 @@ listing the registered scenes.
 
 ### Available scenes
 
-| Scene                     | Content                                                                                                                                                                         |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `loose_pile` (default)    | A loose assortment of 2x2 / 4x2 bricks laid flat in front-left of the holder. The holder itself stays empty.                                                                    |
+| Scene                     | Content                                                                                                                               |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `loose_pile` (default)    | A loose assortment of 2x2 / 4x2 bricks laid flat in front-left of the holder. The holder itself stays empty.                          |
 | `loose_pile_holder_stack` | The `loose_pile` plus a holder stack: a 4x2 then a 2x2 dropped onto the holder studs, with a flush neighbour 4x2/2x2 stack alongside. |
 
 ## How a scene fits together

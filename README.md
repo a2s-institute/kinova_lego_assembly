@@ -21,9 +21,9 @@ This repository is a colcon monorepo. The ROS 2 packages live under `src/`; shar
 
 | Package                                                                    | Role                                                                                                                                                                                                                                |
 | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`kinova_lego_assembly`](src/kinova_lego_assembly)                       | The main ROS 2 application: LEGO perception, blueprint handling, and assembly orchestration. After workspace setup, follow its [README](src/kinova_lego_assembly/README.md) for package dependencies, build, and run instructions. |
+| [`kinova_lego_assembly`](src/kinova_lego_assembly)                       | The main ROS 2 application: LEGO perception, blueprint handling, and assembly orchestration. Its [README](src/kinova_lego_assembly/README.md) covers tests and extending the package. |
 | [`kinova_lego_assembly_interfaces`](src/kinova_lego_assembly_interfaces) | The ROS 2 messages, services, and actions used to communicate between application components.                                                                                                                                       |
-| [`kinova_mujoco_sim`](src/kinova_mujoco_sim)                               | The MuJoCo simulation of the Kinova Gen3 arm, Robotiq gripper, table, holder, and LEGO bricks. Its [README](src/kinova_mujoco_sim/README.md) covers simulator-specific setup and usage.                                             |
+| [`kinova_mujoco_sim`](src/kinova_mujoco_sim)                               | The MuJoCo simulation of the Kinova Gen3 arm, Robotiq gripper, table, holder, and LEGO bricks. Optional; also hosts the MoveIt config for the simulated arm. Its [README](src/kinova_mujoco_sim/README.md) covers setup and usage.                                            |
 
 The simulator also depends on the DFKI **`mujoco_ros2_control`** package, which is not released for our use case. It is vendored: cloned into the workspace at a pinned commit and patched. See [`src/kinova_mujoco_sim/patches/`](src/kinova_mujoco_sim/patches) for the patch, the apply script, and build instructions.
 
@@ -42,15 +42,25 @@ The brick / holder meshes, the MuJoCo `MjSpec` builders (`assets/mujoco/duplo_br
 
 ## Getting started
 
+Steps 1 to 4 install the main application. Then pick how to run it:
+
+- [Option A: Real robot](#option-a-real-robot) on a Kinova Gen3 with the
+  Kortex driver, MoveIt, and the vision module.
+- [Option B: Simulation](#option-b-simulation) in MuJoCo, no hardware needed.
+
 ### Prerequisites
 
-| Requirement | Version          | Notes                |
-| ----------- | ---------------- | -------------------- |
-| Ubuntu      | 22.04 LTS        | Tested platform      |
-| ROS 2       | Humble Hawksbill | `ros-humble-desktop` |
-| Python      | 3.10             | Comes with Humble    |
+| Requirement | Version          | Notes                                                                                 |
+| ----------- | ---------------- | ------------------------------------------------------------------------------------- |
+| Ubuntu      | 22.04 LTS        | Tested platform                                                                       |
+| ROS 2       | Humble Hawksbill | `ros-humble-desktop`                                                                  |
+| Python      | 3.10             | Comes with Humble                                                                     |
+| rosdep      |                  | [Initialised](https://docs.ros.org/en/humble/Tutorials/Intermediate/Rosdep.html) once |
 
-### Create a workspace and clone the repository
+### 1. Create a workspace and clone the repositories
+
+`mas_industrial_robotics` provides `mir_interfaces` and the MMOR object
+recognition used by the orchestrator.
 
 ```bash
 mkdir -p ~/kinova_lego_assembly_ws/src
@@ -69,16 +79,146 @@ touch venv/COLCON_IGNORE
 source venv/bin/activate
 ```
 
-The `mas_industrial_robotics` repository is a shared workspace dependency:
-the application uses its `mir_interfaces` package, and the orchestrator uses
-its MMOR object-recognition and pose-estimation packages.
+### 2. Install dependencies
 
-### Next steps
+From the workspace root, with the venv active:
 
-- **Required: set up and build the main application package.** This package is
-  required for running the system, including the simulator. Follow the
-  [application package README](src/kinova_lego_assembly/README.md) for its
-  dependencies, build, and run instructions.
-- **For using the MuJoCo simulator:** follow the
-  [simulation README](src/kinova_mujoco_sim/README.md) for its additional
-  dependency and simulator-specific instructions.
+```bash
+python3 -m pip install -r src/kinova_lego_assembly/src/kinova_lego_assembly/requirements.txt
+# optional: test and lint tools
+python3 -m pip install -r src/kinova_lego_assembly/src/kinova_lego_assembly/requirements.dev.txt
+
+rosdep install --ignore-src -y --from-paths \
+  src/kinova_lego_assembly/src/kinova_lego_assembly \
+  src/kinova_lego_assembly/src/kinova_lego_assembly_interfaces \
+  src/mas_industrial_robotics
+```
+
+`kinova_mujoco_sim` is left out on purpose; its dependencies are covered by the
+simulation guide.
+
+### 3. Download trained models
+
+Model weights are not tracked in git. Download the latest bundle from
+[this OneDrive folder](https://studhbrsde-my.sharepoint.com/:f:/g/personal/scotrraaj_gopal_smail_inf_h-brs_de/IgBjYcjkEeCuRKjxh-8T2YHeAdhgZvkcBIdpvcioWX8hLjs?e=ai2MSA)
+and extract it into
+[`src/kinova_lego_assembly/trained_models/`](src/kinova_lego_assembly/trained_models)
+so the layout matches its [README](src/kinova_lego_assembly/trained_models/README.md).
+
+The registry picks the highest available `v<N>` directory by default;
+override with the `segmentation.model_version` parameter.
+
+### 4. Build
+
+```bash
+python3 -m colcon build --packages-up-to kinova_lego_assembly
+source install/setup.bash
+```
+
+`launch_task_orchestrator.launch.py` starts the assembly pipeline in order:
+the segmentation service, MMOR object recognition and its lifecycle manager,
+the planning-scene obstacle publisher, and the task orchestrator. It also
+starts the task RViz view and waits for perception and motion-planning
+dependencies before executing the assembly behavior. List all launch
+arguments with `-s`.
+
+### Option A: Real robot
+
+On the real robot the orchestrator expects the Kortex driver with MoveIt and
+the vision module to be running already. Both come from Kinova and live in
+their own workspace, built without this project's venv.
+
+#### A1. Create the Kortex workspace
+
+```bash
+sudo apt install -y python3-colcon-common-extensions python3-vcstool
+mkdir -p ~/kinova_kortex_ws/src
+```
+
+#### A2. Build `ros2_kortex`
+
+Driver, robot description, and MoveIt config for the Gen3. See the
+[`ros2_kortex` README](https://github.com/Kinovarobotics/ros2_kortex/tree/humble#readme)
+for more information.
+
+```bash
+source /opt/ros/humble/setup.bash
+cd ~/kinova_kortex_ws
+git clone -b humble --single-branch https://github.com/Kinovarobotics/ros2_kortex.git src/ros2_kortex
+vcs import src --skip-existing --input src/ros2_kortex/ros2_kortex.$ROS_DISTRO.repos
+vcs import src --skip-existing --input src/ros2_kortex/ros2_kortex-not-released.$ROS_DISTRO.repos
+
+rosdep install --ignore-src --from-paths src -y -r
+colcon build --cmake-args -DCMAKE_BUILD_TYPE=Release --parallel-workers 3
+```
+
+#### A3. Build `ros2_kortex_vision`
+
+Colour and depth streams from the arm's vision module. See the
+[`ros2_kortex_vision` README](https://github.com/Kinovarobotics/ros2_kortex_vision#readme)
+for more information.
+
+```bash
+sudo apt install -y gstreamer1.0-tools gstreamer1.0-libav libgstreamer1.0-dev \
+  libgstreamer-plugins-base1.0-dev libgstreamer-plugins-good1.0-dev \
+  gstreamer1.0-plugins-good gstreamer1.0-plugins-base ros-humble-depth-image-proc
+
+cd ~/kinova_kortex_ws
+git clone https://github.com/Kinovarobotics/ros2_kortex_vision.git src/ros2_kortex_vision
+rosdep install --ignore-src --from-paths src/ros2_kortex_vision -y -r
+colcon build --packages-select kinova_vision
+```
+
+#### A4. Launch
+
+Use one terminal per command, in this order:
+
+```bash
+# Terminal 1: robot driver + MoveIt
+source ~/kinova_kortex_ws/install/setup.bash
+ros2 launch kinova_gen3_7dof_robotiq_2f_85_moveit_config robot.launch.py robot_ip:=192.168.1.10
+
+# Terminal 2: vision module (colour, registered depth, point cloud)
+source ~/kinova_kortex_ws/install/setup.bash
+ros2 launch kinova_vision kinova_vision.launch.py depth_registration:=true
+
+# Terminal 3: assembly pipeline
+cd ~/kinova_lego_assembly_ws
+source install/setup.bash
+source venv/bin/activate
+ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py
+```
+
+`192.168.1.10` is the arm's factory IP; change it if yours was reassigned.
+
+### Option B: Simulation
+
+Follow the [`kinova_mujoco_sim` installation guide](src/kinova_mujoco_sim/README.md#installation)
+to build the simulator, then:
+
+```bash
+ros2 launch kinova_lego_assembly launch_task_orchestrator.launch.py sim_mode:=true
+```
+
+This also brings up the simulator and MoveIt, and `use_sim_time` follows
+`sim_mode` automatically.
+
+### Segmentation only
+
+`launch_kinova_lego_assembly.launch.py` starts only the `LegoSegmentation`
+service node, which provides `~/segment_image`:
+
+```bash
+ros2 launch kinova_lego_assembly launch_kinova_lego_assembly.launch.py
+```
+
+Tune segmentation inference parameters through ROS parameters (see
+[`config/params.yml`](src/kinova_lego_assembly/config/params.yml)), for example:
+
+```bash
+ros2 param set /LegoSegmentation segmentation.yolo.conf 0.7
+```
+
+### Tests
+
+See the [package README](src/kinova_lego_assembly/README.md#tests).
